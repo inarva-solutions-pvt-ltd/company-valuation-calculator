@@ -1,0 +1,2276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Inarva Valuation Framework</title>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <style>
+    /* ── TOKENS ── */
+    :root {
+      --bg:      #f5f4f0;
+      --white:   #fff;
+      --ink:     #1a1a1a;
+      --muted:   #6b6b6b;
+      --border:  #dddbd6;
+      --row-alt: #faf9f7;
+      --con:     #0f7b55;
+      --base:    #1a4d8f;
+      --strat:   #7b2d8f;
+      --red:     #c0392b;
+      --amber:   #b45309;
+    }
+
+    /* ── RESET ── */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: var(--bg);
+      font-family: 'IBM Plex Sans', sans-serif;
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 22px 24px;
+      font-size: 13px;
+    }
+
+    /* ── HEADER ── */
+    .hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .hdr h1 {
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: -.3px;
+    }
+
+    .hdr-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .fx {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .fx input {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      background: var(--white);
+      padding: 3px 7px;
+      border-radius: 3px;
+      width: 72px;
+      color: var(--ink);
+    }
+
+    .fx input:focus {
+      outline: none;
+      border-color: var(--ink);
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      gap: 2px;
+    }
+
+    .tab-btn {
+      padding: 8px 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid var(--border);
+      border-bottom: none;
+      border-radius: 5px 5px 0 0;
+      cursor: pointer;
+      background: #e8e6e1;
+      color: var(--muted);
+      transition: all .15s;
+      letter-spacing: .2px;
+    }
+
+    .tab-btn.active {
+      background: var(--white);
+      color: var(--ink);
+    }
+
+    .tab-btn:hover:not(.active) {
+      background: #eae8e3;
+    }
+
+    /* ── PANEL ── */
+    .panel {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 0 5px 5px 5px;
+      padding: 24px;
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    /* ── SECTION ── */
+    .sec {
+      margin-bottom: 22px;
+    }
+
+    .sec-title {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .pill {
+      font-size: 9px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-weight: 700;
+    }
+
+    .p-fin { background: #e8f5f0; color: #0f7b55; }
+    .p-hr  { background: #e8edf8; color: #1a4d8f; }
+    .p-ip  { background: #f5e8f8; color: #7b2d8f; }
+    .p-rpt { background: #fff7e6; color: #b45309; }
+
+    /* ── GRIDS ── */
+    .grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px 20px; }
+    .grid2 { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px 20px; }
+
+    /* ── FIELDS ── */
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field label {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .field .hint {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      color: #aaa;
+    }
+
+    .field input,
+    .field select {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--ink);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 6px 9px;
+      background: var(--bg);
+    }
+
+    .field input:focus,
+    .field select:focus {
+      outline: none;
+      border-color: var(--ink);
+      background: var(--white);
+    }
+
+    /* ── DYNAMIC TABLE ── */
+    .dyn-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 10px;
+    }
+
+    .dyn-table thead tr {
+      background: #f0ede8;
+    }
+
+    .dyn-table thead th {
+      padding: 8px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--muted);
+      text-align: left;
+      border-bottom: 2px solid var(--border);
+    }
+
+    .dyn-table thead th.r {
+      text-align: right;
+    }
+
+    .dyn-table tbody tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    .dyn-table tbody tr:nth-child(even) {
+      background: var(--row-alt);
+    }
+
+    .dyn-table tbody td {
+      padding: 5px 6px;
+      vertical-align: middle;
+    }
+
+    .dyn-table input[type=text],
+    .dyn-table input[type=number],
+    .dyn-table select {
+      width: 100%;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ink);
+      border: 1px solid transparent;
+      border-radius: 3px;
+      padding: 5px 7px;
+      background: transparent;
+    }
+
+    .dyn-table input[type=text]:focus,
+    .dyn-table input[type=number]:focus,
+    .dyn-table select:focus {
+      outline: none;
+      border-color: var(--border);
+      background: var(--white);
+    }
+
+    .dyn-table input[type=number] {
+      text-align: right;
+    }
+
+    .tot-cell {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      text-align: right;
+      white-space: nowrap;
+      padding-right: 10px;
+    }
+
+    .del-cell {
+      width: 30px;
+      text-align: center;
+    }
+
+    .del-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #ccc;
+      font-size: 13px;
+      padding: 2px 5px;
+      border-radius: 3px;
+    }
+
+    .del-btn:hover {
+      color: var(--red);
+      background: #fff0ee;
+    }
+
+    .sub-row {
+      background: #eef2fa !important;
+    }
+
+    .sub-row td {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 7px 10px !important;
+      border-top: 2px solid var(--border);
+    }
+
+    /* ── BUTTONS ── */
+    .add-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--base);
+      border: 1px dashed #aac0e8;
+      background: #f4f6fc;
+      padding: 5px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+
+    .add-btn:hover {
+      background: #e8edf8;
+      border-color: var(--base);
+    }
+
+    .calc-btn {
+      padding: 10px 30px;
+      background: var(--ink);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 600;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .calc-btn:hover {
+      opacity: .82;
+    }
+
+    .inr-toggle {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      background: var(--white);
+      color: var(--muted);
+      cursor: pointer;
+      transition: all .15s;
+      letter-spacing: .2px;
+    }
+
+    .inr-toggle.active {
+      background: #e8f5f0;
+      color: var(--con);
+      border-color: #9dd3bc;
+    }
+
+    .inr-toggle:hover:not(.active) {
+      background: #f0ede8;
+    }
+
+    .export-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border: 1px solid #aac0e8;
+      border-radius: 3px;
+      background: #f4f6fc;
+      color: var(--base);
+      cursor: pointer;
+      transition: all .15s;
+      letter-spacing: .2px;
+    }
+
+    .export-btn:hover {
+      background: #e8edf8;
+      border-color: var(--base);
+    }
+
+    .import-btn {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 4px 10px;
+      border: 1px solid #9dd3bc;
+      border-radius: 3px;
+      background: #f0faf6;
+      color: var(--con);
+      cursor: pointer;
+      transition: all .15s;
+      letter-spacing: .2px;
+    }
+
+    .import-btn:hover {
+      background: #e0f5ec;
+      border-color: var(--con);
+    }
+
+    /* ── RESULTS TABLE ── */
+    table.vt {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    table.vt thead tr {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    table.vt thead th {
+      padding: 10px 13px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      text-align: left;
+    }
+
+    table.vt thead th.r {
+      text-align: right;
+    }
+
+    table.vt tbody tr {
+      border-bottom: 1px solid var(--border);
+    }
+
+    table.vt tbody tr:nth-child(even):not(.bh):not(.sub):not(.tot):not(.disc) {
+      background: var(--row-alt);
+    }
+
+    table.vt tr.bh {
+      background: #eeede8;
+      border-top: 2px solid var(--border);
+    }
+
+    table.vt tr.bh td {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--muted);
+      padding: 7px 13px;
+    }
+
+    table.vt tr.sub {
+      background: #eef2fa;
+    }
+
+    table.vt tr.sub td {
+      font-weight: 700;
+      padding: 8px 13px;
+    }
+
+    table.vt tr.disc td .u {
+      color: var(--red) !important;
+    }
+
+    table.vt tr.tot {
+      background: var(--ink);
+      color: #fff;
+      border-top: 2px solid #000;
+    }
+
+    table.vt tr.tot td {
+      padding: 13px 13px;
+      font-weight: 700;
+    }
+
+    table.vt td {
+      padding: 9px 13px;
+      vertical-align: top;
+    }
+
+    td.lc { max-width: 210px; }
+
+    td.fc {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      max-width: 230px;
+      line-height: 1.5;
+    }
+
+    td.vc {
+      text-align: right;
+      font-family: 'IBM Plex Mono', monospace;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    td.vc .u { font-size: 12px; display: block; }
+    td.vc .i { font-size: 10px; color: var(--muted); display: block; margin-top: 1px; }
+
+    td.vc.con .u { color: var(--con); }
+    td.vc.bas .u { color: var(--base); }
+    td.vc.str .u { color: var(--strat); }
+
+    tr.sub td.vc.con .u { color: var(--con); }
+    tr.sub td.vc.bas .u { color: var(--base); }
+    tr.sub td.vc.str .u { color: var(--strat); }
+
+    tr.tot td.vc .u { color: #7bf0c4; font-size: 14px; }
+    tr.tot td.vc .i { color: #999; }
+
+    /* ── DEAL STRIP ── */
+    .deal-strip {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .deal-box {
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 12px 14px;
+      background: var(--row-alt);
+    }
+
+    .deal-box .dbl {
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .7px;
+      color: var(--muted);
+      margin-bottom: 5px;
+    }
+
+    .deal-box .dbt {
+      font-size: 18px;
+      font-weight: 700;
+      font-family: 'IBM Plex Mono', monospace;
+      margin-bottom: 2px;
+    }
+
+    .deal-box .dbs {
+      font-size: 10px;
+      color: var(--muted);
+      margin-bottom: 7px;
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .deal-box .dbv {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+      line-height: 1.9;
+    }
+
+    .dbv .du { font-weight: 600; }
+    .dbv .di { color: var(--muted); font-size: 10px; }
+
+    .c1 { color: var(--con); }
+    .c2 { color: var(--base); }
+    .c3 { color: var(--strat); }
+
+    /* ── FOOTER / LEGEND ── */
+    .foot {
+      margin-top: 14px;
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 9px;
+      color: #aaa;
+      line-height: 1.7;
+      border-top: 1px solid var(--border);
+      padding-top: 10px;
+    }
+
+    .empty {
+      text-align: center;
+      padding: 50px 0;
+      color: var(--muted);
+    }
+
+    .empty span {
+      display: block;
+      font-size: 26px;
+      margin-bottom: 8px;
+    }
+
+    .res-hdr {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 16px;
+    }
+
+    .res-hdr h2 {
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .ldot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    /* ── REPORT TAB ── */
+    .report-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .rcard {
+      background: var(--row-alt);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .rcard-hdr {
+      background: #f0ede8;
+      padding: 10px 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .rcard-body {
+      padding: 0;
+    }
+
+    table.rt {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    table.rt th {
+      padding: 7px 12px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--muted);
+      background: #f7f6f3;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+    }
+
+    table.rt th.r { text-align: right; }
+
+    table.rt td {
+      padding: 7px 12px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 11px;
+    }
+
+    table.rt td.r { text-align: right; }
+
+    table.rt tr:last-child td { border-bottom: none; }
+
+    table.rt tr.hi {
+      background: #eef8f4;
+      font-weight: 700;
+    }
+
+    table.rt tr.hi td { color: var(--con); }
+    table.rt tr.neg td.r { color: var(--red); }
+
+    /* ── METRIC STRIP ── */
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .metric-box {
+      background: var(--row-alt);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 12px 14px;
+    }
+
+    .metric-box .mb-label {
+      font-size: 10px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: .6px;
+      margin-bottom: 5px;
+    }
+
+    .metric-box .mb-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .metric-box .mb-sub {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .mb-green  { color: var(--con)   !important; }
+    .mb-blue   { color: var(--base)  !important; }
+    .mb-purple { color: var(--strat) !important; }
+    .mb-amber  { color: var(--amber) !important; }
+
+    /* ── BAR CHART ── */
+    .bar-wrap { padding: 14px; }
+
+    .bar-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .bar-label {
+      font-size: 10px;
+      color: var(--muted);
+      width: 90px;
+      text-align: right;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex-shrink: 0;
+    }
+
+    .bar-track {
+      flex: 1;
+      background: #eeede8;
+      border-radius: 3px;
+      height: 16px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width .4s;
+    }
+
+    .bar-val {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      width: 80px;
+      flex-shrink: 0;
+    }
+
+    .report-empty {
+      text-align: center;
+      padding: 40px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    /* ── FORMULA GUIDE ── */
+    .inf-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .inf-grid.full { grid-template-columns: 1fr; }
+
+    .fcard {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .fcard-hdr {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      background: #f0ede8;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .fcard-hdr-text {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--muted);
+    }
+
+    .fcard-body {
+      padding: 14px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .fcard-desc {
+      font-size: 11px;
+      color: var(--muted);
+      margin-bottom: 12px;
+      line-height: 1.5;
+    }
+
+    .fmla-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+      margin-bottom: 8px;
+    }
+
+    .fmla-table thead tr {
+      background: #f7f6f3;
+    }
+
+    .fmla-table thead th {
+      padding: 6px 10px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--muted);
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .fmla-table thead th.r { text-align: right; }
+
+    .fmla-table tbody td {
+      padding: 6px 10px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+      vertical-align: top;
+    }
+
+    .fmla-table tbody tr:last-child td { border-bottom: none; }
+
+    .fmla-table tbody tr:nth-child(even) { background: var(--row-alt); }
+
+    .fmla-table td.label-col {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .fmla-table td.r { text-align: right; }
+
+    .fmla-table td.con { color: var(--con); font-weight: 600; }
+    .fmla-table td.bas { color: var(--base); font-weight: 600; }
+    .fmla-table td.str { color: var(--strat); font-weight: 600; }
+
+    .fmla-table tr.hi td {
+      background: #eeede8;
+      font-weight: 700;
+      border-top: 2px solid var(--border);
+    }
+
+    .fmla-note {
+      font-size: 10px;
+      color: var(--muted);
+      font-family: 'IBM Plex Mono', monospace;
+      margin-top: 8px;
+      line-height: 1.6;
+      padding: 8px 10px;
+      background: var(--row-alt);
+      border-radius: 4px;
+      border-left: 3px solid var(--border);
+    }
+
+    .cc-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11px;
+    }
+
+    .cc-table td {
+      padding: 5px 10px;
+      border-bottom: 1px solid var(--border);
+      font-family: 'IBM Plex Mono', monospace;
+    }
+
+    .cc-table tr:last-child td { border-bottom: none; }
+
+    .cc-table td.label-col {
+      font-family: 'IBM Plex Sans', sans-serif;
+      font-weight: 600;
+    }
+
+    .cc-table td.disc { color: var(--red); font-weight: 700; }
+
+    .deal-fcard {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .deal-slice {
+      border: 1px solid var(--border);
+      border-radius: 5px;
+      padding: 12px 14px;
+      background: var(--row-alt);
+      text-align: center;
+    }
+
+    .deal-slice .ds-pct {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .deal-slice .ds-label {
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .deal-slice .ds-note {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    /* ── PRINT ── */
+    @media print {
+      .tabs,
+      #calc-btn-wrap,
+      .add-btn,
+      .del-btn,
+      .inr-toggle,
+      .export-btn,
+      .import-btn { display: none !important; }
+
+      body { padding: 10px; background: #fff; }
+      .panel:not(.active) { display: none !important; }
+      .hdr { margin-bottom: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════
+       HEADER
+  ═══════════════════════════════ -->
+  <div class="hdr">
+    <div>
+      <h1>Inarva Valuation Framework</h1>
+      <div class="hdr-sub">M&amp;A · USA / North America · 2025–26</div>
+    </div>
+    <div class="fx">
+      <span>USD / INR ₹</span>
+      <input id="fxRate" type="number" value="91">
+      <button id="inr-toggle" class="inr-toggle" onclick="toggleCurrency()">₹ INR</button>
+      <button class="export-btn" onclick="exportJSON()">↓ Export</button>
+      <button class="import-btn" onclick="document.getElementById('json-import').click()">↑ Import</button>
+      <input type="file" id="json-import" accept=".json" style="display:none" onchange="importJSON(this)">
+      <button class="export-btn" onclick="exportReport()">↓ Export PDF</button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════
+       TABS
+  ═══════════════════════════════ -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="goTab('fin', this)">① Financials</button>
+    <button class="tab-btn"        onclick="goTab('hr',  this)">② Human Capital</button>
+    <button class="tab-btn"        onclick="goTab('ip',  this)">③ IP</button>
+    <button class="tab-btn"        onclick="goTab('val', this)">④ Valuation</button>
+    <button class="tab-btn"        onclick="goTab('rpt', this)">⑤ Report</button>
+    <button class="tab-btn"        onclick="goTab('inf', this)">⑥ Formula Guide</button>
+  </div>
+
+  <!-- ═══════════════════════════════
+       TAB 1 — FINANCIALS
+  ═══════════════════════════════ -->
+  <div class="panel active" id="tab-fin">
+
+    <div class="sec">
+      <div class="sec-title">
+        <span class="pill p-fin">Bucket 1</span> Revenue &amp; Profit
+      </div>
+      <div class="grid3">
+        <div class="field">
+          <label>Total Revenue (USD)</label>
+          <input type="number" id="f_arr" value="100000">
+          <span class="hint">Total revenue for the period</span>
+        </div>
+        <div class="field">
+          <label>Net Profit (USD)</label>
+          <input type="number" id="f_profit" value="25000">
+          <span class="hint">After all operating expenses</span>
+        </div>
+        <div class="field">
+          <label>Recurring / Retainer Revenue (%)</label>
+          <input type="number" id="rec_pct" value="30">
+          <span class="hint">% of revenue that is recurring</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">
+        <span class="pill p-fin">Bucket 2</span> Accounts Receivable
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Unpaid Invoices / AR (USD)</label>
+          <input type="number" id="f_ar" value="20000">
+          <span class="hint">Outstanding invoices raised</span>
+        </div>
+        <div class="field">
+          <label>Signed SOWs / Contracted Backlog (USD)</label>
+          <input type="number" id="f_sow" value="40000">
+          <span class="hint">Committed future revenue</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">
+        <span class="pill p-fin">Bucket 3</span> Pipeline
+      </div>
+      <div class="grid2">
+        <div class="field">
+          <label>Active Pipeline — Proposals Sent (USD)</label>
+          <input type="number" id="f_pipe" value="80000">
+          <span class="hint">Unsigned opportunities in flight</span>
+        </div>
+        <div class="field">
+          <label>Forecasted / Early Stage Opportunities (USD)</label>
+          <input type="number" id="f_forecast" value="50000">
+          <span class="hint">Unqualified / future opportunities</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec" style="margin-bottom: 0;">
+      <div class="sec-title">Risk Adjustment</div>
+      <div class="grid2">
+        <div class="field">
+          <label>Top Client as % of Total Revenue</label>
+          <input type="number" id="cc_pct" value="35">
+          <span class="hint">Drives customer concentration discount</span>
+        </div>
+        <div class="field">
+          <label>Retainer Revenue (% of Total)</label>
+          <input type="number" id="ret_pct" value="30" min="0" max="100">
+          <span class="hint">Retainer revenue won't transfer with the company — discount = % × 0.40</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-fin -->
+
+  <!-- ═══════════════════════════════
+       TAB 2 — HUMAN CAPITAL
+  ═══════════════════════════════ -->
+  <div class="panel" id="tab-hr">
+
+    <div class="sec-title">
+      <span class="pill p-hr">Bucket 4</span> Human Capital — Resources
+    </div>
+    <p style="font-size: 11px; color: var(--muted); margin-bottom: 14px;">
+      Add each team member. Level 1 = 1.5× · Level 2 = 2.0× · Level 3 = 2.5× of Total Compensation.
+    </p>
+
+    <table class="dyn-table" id="hr-table">
+      <thead>
+        <tr>
+          <th style="width: 20%">Resource Name</th>
+          <th style="width: 28%">Skills</th>
+          <th style="width: 10%">Level</th>
+          <th class="r" style="width: 13%">Fixed Pay (USD)</th>
+          <th class="r" style="width: 13%">Variable Pay (USD)</th>
+          <th class="r" style="width: 12%">Total Comp</th>
+          <th style="width: 4%"></th>
+        </tr>
+      </thead>
+      <tbody id="hr-tbody"></tbody>
+      <tfoot>
+        <tr class="sub-row">
+          <td colspan="3">Team Total</td>
+          <td id="hr-tot-fixed" style="text-align: right"></td>
+          <td id="hr-tot-var"   style="text-align: right"></td>
+          <td id="hr-tot-comp"  style="text-align: right"></td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+    <button class="add-btn" onclick="addHRRow()">+ Add Resource</button>
+
+  </div><!-- /tab-hr -->
+
+  <!-- ═══════════════════════════════
+       TAB 3 — IP
+  ═══════════════════════════════ -->
+  <div class="panel" id="tab-ip">
+
+    <div class="sec-title">
+      <span class="pill p-ip">Bucket 5</span> IP — Products &amp; Solutions
+    </div>
+    <p style="font-size: 11px; color: var(--muted); margin-bottom: 14px;">
+      Add each product or solution. IP Multiple: 1.5× (Conservative) · 2.0× (Base) · 2.5× (Strategic) — applied to Build Cost.
+    </p>
+
+    <table class="dyn-table" id="ip-table">
+      <thead>
+        <tr>
+          <th style="width: 22%">Product / Solution Name</th>
+          <th style="width: 32%">Description / Category</th>
+          <th class="r" style="width: 15%">Build Cost (USD)</th>
+          <th class="r" style="width: 15%">Potential Rev (USD)</th>
+          <th class="r" style="width: 12%">IP Value (Base)</th>
+          <th style="width: 4%"></th>
+        </tr>
+      </thead>
+      <tbody id="ip-tbody"></tbody>
+      <tfoot>
+        <tr class="sub-row" id="ip-sub-row">
+          <td colspan="2">IP Portfolio Total</td>
+          <td id="ip-tot-cost" style="text-align: right"></td>
+          <td id="ip-tot-rev"  style="text-align: right"></td>
+          <td id="ip-tot-val"  style="text-align: right"></td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+    <button class="add-btn" onclick="addIPRow()">+ Add Product / Solution</button>
+
+  </div><!-- /tab-ip -->
+
+  <!-- ═══════════════════════════════
+       TAB 4 — VALUATION
+  ═══════════════════════════════ -->
+  <div class="panel" id="tab-val">
+
+    <div class="empty" id="res-empty">
+      <span>📊</span>
+      Click <strong>Calculate Valuation</strong> below to see results.
+    </div>
+
+    <div id="res-content" style="display: none;">
+      <div class="res-hdr">
+        <h2>Valuation by Bucket</h2>
+        <div class="legend">
+          <div class="legend-item">
+            <div class="ldot" style="background: var(--con)"></div>Conservative
+          </div>
+          <div class="legend-item">
+            <div class="ldot" style="background: var(--base)"></div>Base Case
+          </div>
+          <div class="legend-item">
+            <div class="ldot" style="background: var(--strat)"></div>Strategic Premium
+          </div>
+        </div>
+      </div>
+
+      <table class="vt">
+        <thead>
+          <tr>
+            <th style="width: 22%">Line Item</th>
+            <th style="width: 26%">Formula</th>
+            <th class="r" style="width: 17%">Conservative</th>
+            <th class="r" style="width: 17%">Base Case</th>
+            <th class="r" style="width: 18%">Strategic Premium</th>
+          </tr>
+        </thead>
+        <tbody id="res-tbody"></tbody>
+      </table>
+
+      <div class="deal-strip" id="deal-strip"></div>
+      <div class="foot" id="foot"></div>
+    </div>
+
+  </div><!-- /tab-val -->
+
+  <!-- ═══════════════════════════════
+       TAB 5 — REPORT
+  ═══════════════════════════════ -->
+  <div class="panel" id="tab-rpt">
+
+    <div class="empty report-empty" id="rpt-empty">
+      <span>📋</span>Calculate valuation first to generate the report.
+    </div>
+
+    <div id="rpt-content" style="display: none;">
+
+      <!-- Key Metrics Strip -->
+      <div class="metric-strip" id="metric-strip"></div>
+
+      <div class="report-grid">
+
+        <!-- Table 1: Company Valuation vs HC Expense -->
+        <div class="rcard">
+          <div class="rcard-hdr">Company Valuation vs Human Capital Expense</div>
+          <div class="rcard-body">
+            <table class="rt" id="rpt-hc-table"></table>
+          </div>
+        </div>
+
+        <!-- Table 2: Profit Analysis -->
+        <div class="rcard">
+          <div class="rcard-hdr">Resulting Profit — After Human Capital Cost</div>
+          <div class="rcard-body">
+            <table class="rt" id="rpt-profit-table"></table>
+          </div>
+        </div>
+
+        <!-- Table 3: AR & Pipeline Growth -->
+        <div class="rcard" style="grid-column: 1 / -1;">
+          <div class="rcard-hdr">Profit Against AR &amp; Pipeline Growth</div>
+          <div class="rcard-body" id="rpt-pipeline-body"></div>
+        </div>
+
+      </div>
+    </div>
+
+  </div><!-- /tab-rpt -->
+
+  <!-- ═══════════════════════════════
+       TAB 6 — FORMULA GUIDE
+  ═══════════════════════════════ -->
+  <div class="panel" id="tab-inf">
+
+    <div class="res-hdr" style="margin-bottom: 18px;">
+      <div>
+        <h2 style="font-size: 14px; font-weight: 700;">Valuation Formula Guide</h2>
+        <div style="font-size: 11px; color: var(--muted); margin-top: 3px;">
+          How each input drives the final number — Conservative · Base · Strategic
+        </div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><div class="ldot" style="background: var(--con)"></div>Conservative</div>
+        <div class="legend-item"><div class="ldot" style="background: var(--base)"></div>Base Case</div>
+        <div class="legend-item"><div class="ldot" style="background: var(--strat)"></div>Strategic</div>
+      </div>
+    </div>
+
+    <!-- Row 1: Bucket 1 + Bucket 2 -->
+    <div class="inf-grid">
+
+      <!-- Bucket 1 -->
+      <div class="fcard">
+        <div class="fcard-hdr">
+          <span class="pill p-fin">Bucket 1</span>
+          <span class="fcard-hdr-text">Revenue &amp; Profit</span>
+        </div>
+        <div class="fcard-body">
+          <div class="fcard-desc">
+            The higher of the Revenue valuation or Profit valuation is used — the model never double-counts. Revenue multiples are blended by the % of recurring revenue you enter.
+          </div>
+          <table class="fmla-table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th class="r">Conservative</th>
+                <th class="r">Base</th>
+                <th class="r">Strategic</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label-col">Project revenue multiple</td>
+                <td class="r con">0.80×</td>
+                <td class="r bas">1.25×</td>
+                <td class="r str">1.75×</td>
+              </tr>
+              <tr>
+                <td class="label-col">Retainer / recurring multiple</td>
+                <td class="r con">1.50×</td>
+                <td class="r bas">2.50×</td>
+                <td class="r str">4.00×</td>
+              </tr>
+              <tr>
+                <td class="label-col">Profit multiple</td>
+                <td class="r con">2.50×</td>
+                <td class="r bas">3.00×</td>
+                <td class="r str">4.00×</td>
+              </tr>
+              <tr class="hi">
+                <td class="label-col" colspan="4">
+                  Blended Revenue Multiple = (1 − Rec%) × Project + Rec% × Retainer
+                </td>
+              </tr>
+              <tr class="hi">
+                <td class="label-col" colspan="4">
+                  Bucket 1 = max(Revenue × Blended Multiple,&nbsp;&nbsp;Profit × Profit Multiple)
+                </td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="fmla-note">
+            Example: 30% recurring → Blended (Base) = 0.70 × 1.25 + 0.30 × 2.50 = 1.625×<br>
+            At $100K revenue: Revenue val = $162.5K · Profit val (at $25K) = $75K → take $162.5K
+          </div>
+        </div>
+      </div>
+
+      <!-- Bucket 2 -->
+      <div class="fcard">
+        <div class="fcard-hdr">
+          <span class="pill p-fin">Bucket 2</span>
+          <span class="fcard-hdr-text">Accounts Receivable</span>
+        </div>
+        <div class="fcard-body">
+          <div class="fcard-desc">
+            Near-certain cash — invoices already raised and contracts already signed. A haircut is applied to reflect typical collection risk.
+          </div>
+          <table class="fmla-table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th class="r">Conservative</th>
+                <th class="r">Base</th>
+                <th class="r">Strategic</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label-col">Unpaid Invoices (AR)</td>
+                <td class="r con">AR × 90%</td>
+                <td class="r bas">AR × 95%</td>
+                <td class="r str">AR × 100%</td>
+              </tr>
+              <tr>
+                <td class="label-col">Signed SOWs / Backlog</td>
+                <td class="r con">SOW × 85%</td>
+                <td class="r bas">SOW × 90%</td>
+                <td class="r str">SOW × 95%</td>
+              </tr>
+              <tr class="hi">
+                <td class="label-col" colspan="4">Bucket 2 = AR (haircut) + SOW (haircut)</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="fmla-note">
+            AR is valued near face value — the discount reflects bad-debt risk and payment delays. SOW backlog is slightly more discounted because delivery hasn't started.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /inf-grid row 1 -->
+
+    <!-- Row 2: Bucket 3 + Bucket 4 -->
+    <div class="inf-grid">
+
+      <!-- Bucket 3 -->
+      <div class="fcard">
+        <div class="fcard-hdr">
+          <span class="pill p-fin">Bucket 3</span>
+          <span class="fcard-hdr-text">Pipeline</span>
+        </div>
+        <div class="fcard-body">
+          <div class="fcard-desc">
+            Probabilistic future revenue. Active proposals are more likely to close than early-stage forecasts, so they receive higher weights.
+          </div>
+          <table class="fmla-table">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th class="r">Conservative</th>
+                <th class="r">Base</th>
+                <th class="r">Strategic</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label-col">Active Proposals (sent)</td>
+                <td class="r con">Pipeline × 20%</td>
+                <td class="r bas">Pipeline × 30%</td>
+                <td class="r str">Pipeline × 45%</td>
+              </tr>
+              <tr>
+                <td class="label-col">Forecasted / Early Stage</td>
+                <td class="r con">Forecast × 10%</td>
+                <td class="r bas">Forecast × 15%</td>
+                <td class="r str">Forecast × 25%</td>
+              </tr>
+              <tr class="hi">
+                <td class="label-col" colspan="4">Bucket 3 = Weighted Active + Weighted Forecast</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="fmla-note">
+            Conservative weight reflects typical SMB services win-rates. Strategic weight reflects a buyer who believes they can close pipeline faster with their distribution.
+          </div>
+        </div>
+      </div>
+
+      <!-- Bucket 4 -->
+      <div class="fcard">
+        <div class="fcard-hdr">
+          <span class="pill p-hr">Bucket 4</span>
+          <span class="fcard-hdr-text">Human Capital</span>
+        </div>
+        <div class="fcard-body">
+          <div class="fcard-desc">
+            Acqui-hire value — what a buyer would pay to recruit and ramp equivalent talent from scratch. The multiplier reflects market scarcity and ramp cost by seniority level.
+          </div>
+          <table class="fmla-table">
+            <thead>
+              <tr>
+                <th>Level</th>
+                <th>Profile</th>
+                <th class="r">Multiplier (all scenarios)</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label-col">L1</td>
+                <td>Specialist / Analyst</td>
+                <td class="r bas">Comp × 1.5×</td>
+              </tr>
+              <tr>
+                <td class="label-col">L2</td>
+                <td>Senior / Lead</td>
+                <td class="r bas">Comp × 2.0×</td>
+              </tr>
+              <tr>
+                <td class="label-col">L3</td>
+                <td>Principal / Architect</td>
+                <td class="r bas">Comp × 2.5×</td>
+              </tr>
+              <tr class="hi">
+                <td class="label-col" colspan="3">Bucket 4 = Σ (Fixed + Variable) × Level Multiplier</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="fmla-note">
+            HC multiplier is the same across all three scenarios — talent value doesn't change with the deal structure. Only the financial and IP buckets vary.
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /inf-grid row 2 -->
+
+    <!-- Row 3: Bucket 5 full width -->
+    <div class="inf-grid">
+
+      <!-- Bucket 5 -->
+      <div class="fcard">
+        <div class="fcard-hdr">
+          <span class="pill p-ip">Bucket 5</span>
+          <span class="fcard-hdr-text">IP — Products &amp; Solutions</span>
+        </div>
+        <div class="fcard-body">
+          <div class="fcard-desc">
+            Replacement-cost methodology: what would it cost a buyer to build equivalent IP from scratch, adjusted for strategic value. Applied to each product's build cost independently.
+          </div>
+          <table class="fmla-table">
+            <thead>
+              <tr>
+                <th>Scenario</th>
+                <th>Rationale</th>
+                <th class="r">Formula</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="label-col con">Conservative</td>
+                <td>Near-replacement value only</td>
+                <td class="r con">Build Cost × 1.5×</td>
+              </tr>
+              <tr>
+                <td class="label-col bas">Base</td>
+                <td>Replacement + moderate strategic fit</td>
+                <td class="r bas">Build Cost × 2.0×</td>
+              </tr>
+              <tr>
+                <td class="label-col str">Strategic</td>
+                <td>Unique IP with high buyer leverage</td>
+                <td class="r str">Build Cost × 2.5×</td>
+              </tr>
+              <tr class="hi">
+                <td class="label-col" colspan="3">Bucket 5 = Σ Build Cost × IP Multiple (per product)</td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="fmla-note">
+            Potential Revenue entered for each product is for context only — it does not directly affect the valuation. It helps the buyer understand revenue upside beyond build cost.
+          </div>
+        </div>
+      </div>
+
+      <!-- Risk Adjustment -->
+      <div class="fcard">
+        <div class="fcard-hdr">
+          <span class="pill p-rpt">Risk</span>
+          <span class="fcard-hdr-text">Risk Adjustment</span>
+        </div>
+        <div class="fcard-body">
+          <div class="fcard-desc">
+            Two risk factors reduce the pre-total. Both are applied as a single combined percentage discount to the sum of all five buckets.
+          </div>
+
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); margin-bottom: 6px;">
+            Customer Concentration Discount
+          </div>
+          <table class="cc-table" style="margin-bottom: 14px;">
+            <tbody>
+              <tr>
+                <td class="label-col">Top client ≥ 50% of revenue</td>
+                <td class="disc r">− 30%</td>
+              </tr>
+              <tr>
+                <td class="label-col">Top client 40 – 49%</td>
+                <td class="disc r">− 20%</td>
+              </tr>
+              <tr>
+                <td class="label-col">Top client 30 – 39%</td>
+                <td class="disc r">− 12%</td>
+              </tr>
+              <tr>
+                <td class="label-col">Top client 20 – 29%</td>
+                <td class="disc r">− 5%</td>
+              </tr>
+              <tr>
+                <td class="label-col">Top client &lt; 20%</td>
+                <td class="r" style="color: var(--con); font-weight: 700;">No discount</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); margin-bottom: 6px;">
+            Retainer Non-Transfer Discount
+          </div>
+          <div class="fmla-note" style="margin-bottom: 0;">
+            Retainer revenue is relationship-dependent and may not transfer to a new owner.<br>
+            <strong>Discount = Retainer% × 0.40</strong><br>
+            Example: 30% retainer → 30% × 0.40 = 12% additional discount<br><br>
+            <strong>Total Discount = CC Discount + Retainer Discount</strong><br>
+            Applied to: Pre-Discount Total (Buckets 1–5 sum)
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /inf-grid row 3 -->
+
+    <!-- Overall Formula Summary -->
+    <div class="fcard" style="margin-top: 0;">
+      <div class="fcard-hdr">
+        <span class="fcard-hdr-text" style="font-size: 12px;">Overall Valuation Formula</span>
+      </div>
+      <div class="fcard-body" style="font-family: 'IBM Plex Mono', monospace; font-size: 11px; line-height: 2;">
+        <div style="display: grid; grid-template-columns: auto 1fr; gap: 4px 16px; align-items: baseline;">
+          <span style="color: var(--muted);">Step 1</span>
+          <span>Bucket 1 = max(Revenue × Blended Multiple,&nbsp;&nbsp;Profit × Profit Multiple)</span>
+          <span style="color: var(--muted);">Step 2</span>
+          <span>Bucket 2 = AR (haircut) + SOW (haircut)</span>
+          <span style="color: var(--muted);">Step 3</span>
+          <span>Bucket 3 = Pipeline (weighted) + Forecast (weighted)</span>
+          <span style="color: var(--muted);">Step 4</span>
+          <span>Bucket 4 = Σ (Comp × Level Multiplier) per resource</span>
+          <span style="color: var(--muted);">Step 5</span>
+          <span>Bucket 5 = Σ (Build Cost × IP Multiple) per product</span>
+          <span style="color: var(--muted);">Step 6</span>
+          <span>Pre-Total = Bucket 1 + 2 + 3 + 4 + 5</span>
+          <span style="color: var(--muted);">Step 7</span>
+          <span>Discount = Pre-Total × (CC Discount + Retainer Discount)</span>
+          <span style="color: var(--muted); font-weight: 700;">Final</span>
+          <span style="font-weight: 700; color: var(--ink);">Valuation = Pre-Total − Discount</span>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /tab-inf -->
+
+  <!-- ═══════════════════════════════
+       CALCULATE BUTTON
+  ═══════════════════════════════ -->
+  <div id="calc-btn-wrap" style="margin-top: 16px;">
+    <button class="calc-btn" onclick="calculate()">Calculate Valuation →</button>
+  </div>
+
+  <script>
+    /* ─────────────────────────────────────────────
+       GLOBALS
+    ───────────────────────────────────────────── */
+    let inrMode    = false;
+    let hasResults = false;
+
+    /* ─────────────────────────────────────────────
+       CURRENCY TOGGLE & EXPORT
+    ───────────────────────────────────────────── */
+    function toggleCurrency() {
+      inrMode = !inrMode;
+      const btn = document.getElementById('inr-toggle');
+      btn.classList.toggle('active', inrMode);
+      btn.textContent = inrMode ? '$ USD' : '₹ INR';
+      if (hasResults) calculate(true);
+    }
+
+    function exportReport() {
+      window.print();
+    }
+
+    /* ─────────────────────────────────────────────
+       JSON EXPORT / IMPORT
+    ───────────────────────────────────────────── */
+    function exportJSON() {
+      const financialIds = ['f_arr', 'f_profit', 'rec_pct', 'f_ar', 'f_sow', 'f_pipe', 'f_forecast', 'cc_pct', 'ret_pct'];
+      const financials   = {};
+      financialIds.forEach(id => {
+        financials[id] = parseFloat(document.getElementById(id).value) || 0;
+      });
+
+      const humanCapital = [];
+      document.querySelectorAll('#hr-tbody tr').forEach(tr => {
+        const textInputs = tr.querySelectorAll('input[type=text]');
+        const numInputs  = tr.querySelectorAll('input[type=number]');
+        const sel        = tr.querySelector('select');
+        humanCapital.push({
+          name:     textInputs[0]?.value || '',
+          skills:   textInputs[1]?.value || '',
+          level:    parseInt(sel?.value) || 1,
+          fixed:    parseFloat(numInputs[0]?.value) || 0,
+          variable: parseFloat(numInputs[1]?.value) || 0
+        });
+      });
+
+      const ip = [];
+      document.querySelectorAll('#ip-tbody tr').forEach(tr => {
+        const textInputs = tr.querySelectorAll('input[type=text]');
+        const numInputs  = tr.querySelectorAll('input[type=number]');
+        ip.push({
+          name: textInputs[0]?.value || '',
+          desc: textInputs[1]?.value || '',
+          cost: parseFloat(numInputs[0]?.value) || 0,
+          rev:  parseFloat(numInputs[1]?.value) || 0
+        });
+      });
+
+      const payload = JSON.stringify({ financials, humanCapital, ip }, null, 2);
+      const blob    = new Blob([payload], { type: 'application/json' });
+      const a       = document.createElement('a');
+      a.href        = URL.createObjectURL(blob);
+      a.download    = 'inarva-valuation.json';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+
+    function importJSON(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = e => {
+        let data;
+        try {
+          data = JSON.parse(e.target.result);
+        } catch {
+          alert('Invalid JSON file.');
+          return;
+        }
+
+        // Financials
+        if (data.financials) {
+          Object.entries(data.financials).forEach(([id, val]) => {
+            const el = document.getElementById(id);
+            if (el) el.value = val;
+          });
+        }
+
+        // Human Capital
+        if (Array.isArray(data.humanCapital)) {
+          document.getElementById('hr-tbody').innerHTML = '';
+          data.humanCapital.forEach(r => addHRRow(r));
+        }
+
+        // IP
+        if (Array.isArray(data.ip)) {
+          document.getElementById('ip-tbody').innerHTML = '';
+          data.ip.forEach(p => addIPRow(p));
+        }
+
+        // Reset the file input so the same file can be re-imported
+        input.value = '';
+      };
+      reader.readAsText(file);
+    }
+
+    /* ─────────────────────────────────────────────
+       TAB NAVIGATION
+    ───────────────────────────────────────────── */
+    function goTab(id, btn) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      btn.classList.add('active');
+      document.getElementById('tab-' + id).classList.add('active');
+      document.getElementById('calc-btn-wrap').style.display =
+        (id === 'val' || id === 'rpt' || id === 'inf') ? 'none' : 'block';
+    }
+
+    /* ─────────────────────────────────────────────
+       FORMAT HELPERS
+    ───────────────────────────────────────────── */
+    function v(id) {
+      return parseFloat(document.getElementById(id).value) || 0;
+    }
+
+    const fu = (n) => {
+      const s = n < 0 ? '−$' : '$';
+      const a = Math.abs(n);
+      return a >= 1e6 ? s + (a / 1e6).toFixed(2) + 'M'
+           : a >= 1e3 ? s + (a / 1e3).toFixed(1) + 'K'
+           :             s + a.toFixed(0);
+    };
+
+    const fi = (n, fx) => {
+      const s = n < 0 ? '−₹' : '₹';
+      const a = Math.abs(n) * fx;
+      return a >= 1e7 ? s + (a / 1e7).toFixed(2) + ' Cr'
+           : a >= 1e5 ? s + (a / 1e5).toFixed(1) + ' L'
+           :             s + a.toFixed(0);
+    };
+
+    const fc  = (n)    => n >= 1e3 ? '$' + (n / 1e3).toFixed(1) + 'K' : '$' + n.toFixed(0);
+    const pct = (a, b) => b ? ((a / b) * 100).toFixed(1) + '%' : '—';
+
+    function vc(u, fx, cls) {
+      const p = inrMode ? fi(u, fx) : fu(u);
+      const s = inrMode ? fu(u)     : fi(u, fx);
+      return `<td class="vc ${cls}"><span class="u">${p}</span><span class="i">${s}</span></td>`;
+    }
+
+    /* ─────────────────────────────────────────────
+       HR TABLE
+    ───────────────────────────────────────────── */
+    function addHRRow(d) {
+      d = d || {};
+      const id = 'hr' + (Date.now() + Math.random()).toString(36);
+      const tr = document.createElement('tr');
+      tr.id = 'hrr-' + id;
+      tr.innerHTML = `
+        <td>
+          <input type="text" placeholder="e.g. Vivek"
+            value="${d.name || ''}" oninput="refreshHR()">
+        </td>
+        <td>
+          <input type="text" placeholder="e.g. Agentic AI, LangChain, Python"
+            value="${d.skills || ''}" oninput="refreshHR()">
+        </td>
+        <td>
+          <select oninput="refreshHR()"
+            style="width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;
+                   border:1px solid var(--border);border-radius:3px;
+                   padding:4px 6px;background:var(--bg);color:var(--ink);">
+            <option value="1" ${(d.level || 3) === 1 ? 'selected' : ''}>L1 — 1.5×</option>
+            <option value="2" ${(d.level || 3) === 2 ? 'selected' : ''}>L2 — 2.0×</option>
+            <option value="3" ${(d.level || 3) === 3 ? 'selected' : ''}>L3 — 2.5×</option>
+          </select>
+        </td>
+        <td>
+          <input type="number" placeholder="0" value="${d.fixed || ''}"
+            oninput="refreshHR()" style="text-align:right">
+        </td>
+        <td>
+          <input type="number" placeholder="0" value="${d.variable || ''}"
+            oninput="refreshHR()" style="text-align:right">
+        </td>
+        <td class="tot-cell" id="hrc-${id}">—</td>
+        <td class="del-cell">
+          <button class="del-btn" onclick="delHR('${id}')">✕</button>
+        </td>`;
+      document.getElementById('hr-tbody').appendChild(tr);
+      refreshHR();
+    }
+
+    function delHR(id) {
+      document.getElementById('hrr-' + id)?.remove();
+      refreshHR();
+    }
+
+    function refreshHR() {
+      let tF = 0, tV = 0, tC = 0;
+      document.querySelectorAll('#hr-tbody tr').forEach(tr => {
+        const ins = tr.querySelectorAll('input[type=number]');
+        const f   = parseFloat(ins[0]?.value) || 0;
+        const vv  = parseFloat(ins[1]?.value) || 0;
+        const c   = f + vv;
+        const id  = tr.id.replace('hrr-', '');
+        const cell = document.getElementById('hrc-' + id);
+        if (cell) cell.textContent = c > 0 ? fc(c) : '—';
+        tF += f; tV += vv; tC += c;
+      });
+      document.getElementById('hr-tot-fixed').textContent = tF > 0 ? fc(tF) : '—';
+      document.getElementById('hr-tot-var').textContent   = tV > 0 ? fc(tV) : '—';
+      document.getElementById('hr-tot-comp').textContent  = tC > 0 ? fc(tC) : '—';
+    }
+
+    /* ─────────────────────────────────────────────
+       IP TABLE
+    ───────────────────────────────────────────── */
+    function addIPRow(d) {
+      d = d || {};
+      const id = 'ip' + (Date.now() + Math.random()).toString(36);
+      const tr = document.createElement('tr');
+      tr.id = 'ipr-' + id;
+      tr.innerHTML = `
+        <td>
+          <input type="text" placeholder="e.g. Agentic Workflow Engine"
+            value="${d.name || ''}" oninput="refreshIP()">
+        </td>
+        <td>
+          <input type="text" placeholder="e.g. Agentic AI Platform"
+            value="${d.desc || ''}" oninput="refreshIP()">
+        </td>
+        <td>
+          <input type="number" placeholder="0" value="${d.cost || ''}"
+            oninput="refreshIP()" style="text-align:right">
+        </td>
+        <td>
+          <input type="number" placeholder="0" value="${d.rev || ''}"
+            oninput="refreshIP()" style="text-align:right">
+        </td>
+        <td class="tot-cell" id="ipv-${id}">—</td>
+        <td class="del-cell">
+          <button class="del-btn" onclick="delIP('${id}')">✕</button>
+        </td>`;
+      document.getElementById('ip-tbody').appendChild(tr);
+      refreshIP();
+    }
+
+    function delIP(id) {
+      document.getElementById('ipr-' + id)?.remove();
+      refreshIP();
+    }
+
+    function refreshIP() {
+      let tC = 0, tR = 0, tV = 0;
+      document.querySelectorAll('#ip-tbody tr').forEach(tr => {
+        const ins  = tr.querySelectorAll('input[type=number]');
+        const cost = parseFloat(ins[0]?.value) || 0;
+        const rev  = parseFloat(ins[1]?.value) || 0;
+        const val  = cost * 2.0; // base 2×
+        const id   = tr.id.replace('ipr-', '');
+        const cell = document.getElementById('ipv-' + id);
+        if (cell) cell.textContent = val > 0 ? fc(val) + ' (2×)' : '—';
+        tC += cost; tR += rev; tV += val;
+      });
+      document.getElementById('ip-tot-cost').textContent = tC > 0 ? fc(tC) : '—';
+      document.getElementById('ip-tot-rev').textContent  = tR > 0 ? fc(tR) : '—';
+      document.getElementById('ip-tot-val').textContent  = tV > 0 ? fc(tV) : '—';
+    }
+
+    /* ─────────────────────────────────────────────
+       CALCULATE
+    ───────────────────────────────────────────── */
+    function calculate(silent = false) {
+      const fx       = v('fxRate');
+      const arr      = v('f_arr');
+      const profit   = v('f_profit');
+      const recPct   = v('rec_pct') / 100;
+      const ar       = v('f_ar');
+      const sow      = v('f_sow');
+      const pipe     = v('f_pipe');
+      const forecast = v('f_forecast');
+      const ccPct    = v('cc_pct');
+      const retPct   = v('ret_pct') / 100;        // fraction of revenue that is retainer
+      const retRisk  = retPct * 0.40;             // ~40% of retainer value won't transfer
+
+      // Revenue multiples blended by recurring %
+      const rM = [
+        (1 - recPct) * 0.8  + recPct * 1.5,
+        (1 - recPct) * 1.25 + recPct * 2.5,
+        (1 - recPct) * 1.75 + recPct * 4.0
+      ];
+      const sM = [2.5, 3.0, 4.0];
+
+      // AR & Pipeline
+      const arV   = [ar * .90 + sow * .85,  ar * .95 + sow * .90,  ar * 1.0 + sow * .95];
+      const pipeV = [pipe * .20 + forecast * .10, pipe * .30 + forecast * .15, pipe * .45 + forecast * .25];
+
+      // HR — read rows
+      let hrRaw = [0, 0, 0];
+      let hrRows = [];
+      document.querySelectorAll('#hr-tbody tr').forEach(tr => {
+        const ins    = tr.querySelectorAll('input[type=number]');
+        const nameIn = tr.querySelector('input[type=text]');
+        const skillIn= tr.querySelectorAll('input[type=text]')[1];
+        const sel    = tr.querySelector('select');
+        const f      = parseFloat(ins[0]?.value) || 0;
+        const vv     = parseFloat(ins[1]?.value) || 0;
+        const c      = f + vv;
+        const lvl    = parseInt(sel?.value) || 1;
+        const mult   = { 1: 1.5, 2: 2.0, 3: 2.5 }[lvl] || 1.5;
+        hrRaw = hrRaw.map(h => h + c * mult);
+        hrRows.push({
+          name: nameIn?.value || 'Resource',
+          skills: skillIn?.value || '',
+          level: lvl, mult, fixed: f, variable: vv, comp: c, val: c * mult
+        });
+      });
+      const hrV = hrRaw;
+
+      // IP — read rows
+      let ipT = [0, 0, 0];
+      let ipRows = [];
+      document.querySelectorAll('#ip-tbody tr').forEach(tr => {
+        const ins    = tr.querySelectorAll('input[type=number]');
+        const nameIn = tr.querySelector('input[type=text]');
+        const cost   = parseFloat(ins[0]?.value) || 0;
+        const rev    = parseFloat(ins[1]?.value) || 0;
+        const vals   = [cost * 1.5, cost * 2.0, cost * 2.5];
+        ipT = ipT.map((x, s) => x + vals[s]);
+        ipRows.push({ name: nameIn?.value || 'Product', cost, rev, vals });
+      });
+
+      // Customer concentration discount
+      let ccD = 0;
+      if      (ccPct >= 50) ccD = 0.30;
+      else if (ccPct >= 40) ccD = 0.20;
+      else if (ccPct >= 30) ccD = 0.12;
+      else if (ccPct >= 20) ccD = 0.05;
+
+      // Totals
+      const finS    = [0, 1, 2].map(s => Math.max(arr * rM[s], profit * sM[s]) + arV[s] + pipeV[s]);
+      const preT    = [0, 1, 2].map(s => finS[s] + hrV[s] + ipT[s]);
+      const discAmt = preT.map(t => -t * (ccD + retRisk));
+      const tots    = preT.map((t, s) => t + discAmt[s]);
+
+      // ── BUILD VALUATION TABLE ──
+      const bhRow  = t => `<tr class="bh"><td colspan="5">${t}</td></tr>`;
+      const dr     = (label, formula, vals, cls) => `
+        <tr${cls ? ` class="${cls}"` : ''}>
+          <td class="lc">${label}</td>
+          <td class="fc">${formula}</td>
+          ${vc(vals[0], fx, 'con')}${vc(vals[1], fx, 'bas')}${vc(vals[2], fx, 'str')}
+        </tr>`;
+      const subRow = (label, vals) => `
+        <tr class="sub">
+          <td class="lc">${label}</td>
+          <td class="fc"></td>
+          ${vc(vals[0], fx, 'con')}${vc(vals[1], fx, 'bas')}${vc(vals[2], fx, 'str')}
+        </tr>`;
+
+      let rows = '';
+
+      rows += bhRow('BUCKET 1 — Revenue &amp; Profit');
+      rows += dr('Total Revenue', `Rev × ${rM.map(m => m.toFixed(2) + '×').join(' / ')}`, rM.map(m => arr * m));
+      rows += dr('Net Profit',    `Profit × ${sM.join('× / ')}×`, sM.map(m => profit * m));
+      rows += subRow('Bucket 1 Sub-total', [0, 1, 2].map(s => Math.max(arr * rM[s], profit * sM[s])));
+
+      rows += bhRow('BUCKET 2 — Accounts Receivable');
+      rows += dr('Unpaid Invoices (AR)',   'AR × 90% / 95% / 100%',   [ar * .9, ar * .95, ar]);
+      rows += dr('Signed SOWs / Backlog',  'SOW × 85% / 90% / 95%',   [sow * .85, sow * .9, sow * .95]);
+      rows += subRow('Bucket 2 Sub-total', arV);
+
+      rows += bhRow('BUCKET 3 — Pipeline');
+      rows += dr('Active Proposals',         'Pipeline × 20% / 30% / 45%', [pipe * .2, pipe * .3, pipe * .45]);
+      rows += dr('Forecasted Opportunities', 'Forecast × 10% / 15% / 25%', [forecast * .1, forecast * .15, forecast * .25]);
+      rows += subRow('Bucket 3 Sub-total', pipeV);
+
+      rows += bhRow(`BUCKET 4 — Human Capital (${hrRows.length} resource${hrRows.length !== 1 ? 's' : ''})`);
+      if (!hrRows.length) {
+        rows += `<tr><td colspan="5" style="text-align:center;color:var(--muted);font-size:11px;padding:12px">No resources added</td></tr>`;
+      } else {
+        hrRows.forEach(r => {
+          const lvlTag = `<span style="font-size:9px;background:#e8edf8;color:#1a4d8f;padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px;">L${r.level} ×${r.mult}</span>`;
+          rows += dr(`${r.name}${lvlTag}`, `${fc(r.comp)} comp × ${r.mult}×`, [r.val, r.val, r.val]);
+        });
+      }
+      rows += subRow('Bucket 4 Sub-total', hrV);
+
+      rows += bhRow('BUCKET 5 — IP (Build Cost × 1.5× / 2.0× / 2.5×)');
+      if (!ipRows.length) {
+        rows += `<tr><td colspan="5" style="text-align:center;color:var(--muted);font-size:11px;padding:12px">No products added</td></tr>`;
+      } else {
+        ipRows.forEach(p => {
+          rows += dr(p.name, `${fc(p.cost)} × 1.5× / 2.0× / 2.5×`, p.vals);
+        });
+      }
+      rows += subRow('Bucket 5 Sub-total', ipT);
+
+      const adjLabel = `RISK ADJUSTMENT — CC: ${ccPct}% (−${(ccD * 100).toFixed(0)}%) ` +
+        `+ Retainer Non-Transfer: ${(retPct * 100).toFixed(0)}% × 0.40 = −${(retRisk * 100).toFixed(1)}% ` +
+        `· Total Discount: −${((ccD + retRisk) * 100).toFixed(1)}%`;
+      rows += bhRow(adjLabel);
+      rows += dr('Combined Risk Discount', `Pre-total × −${((ccD + retRisk) * 100).toFixed(0)}%`, discAmt, 'disc');
+
+      rows += `
+        <tr class="tot">
+          <td colspan="2" style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.5px;text-transform:uppercase">
+            Total Valuation
+          </td>
+          ${vc(tots[0], fx, 'con')}${vc(tots[1], fx, 'bas')}${vc(tots[2], fx, 'str')}
+        </tr>`;
+
+      document.getElementById('res-tbody').innerHTML = rows;
+
+      // Deal Strip
+      const dlabels = ['Conservative', 'Base Case', 'Strategic Premium'];
+      const dcols   = ['c1', 'c2', 'c3'];
+      const dp = n => inrMode ? fi(n, fx) : fu(n);
+      const ds = n => inrMode ? fu(n)     : fi(n, fx);
+
+      document.getElementById('deal-strip').innerHTML = tots.map((tot, i) => `
+        <div class="deal-box">
+          <div class="dbl">${dlabels[i]}</div>
+          <div class="dbt ${dcols[i]}">${dp(tot)}</div>
+          <div class="dbs">${ds(tot)}</div>
+          <div class="dbv">
+            <span class="du">65% Upfront Cash:&nbsp;&nbsp;${dp(tot * .65)}</span>
+            <span class="di">${ds(tot * .65)}</span><br>
+            <span class="du">20% Earnout (24mo): ${dp(tot * .20)}</span>
+            <span class="di">${ds(tot * .20)}</span><br>
+            <span class="du">15% Retention/RSU:  ${dp(tot * .15)}</span>
+            <span class="di">${ds(tot * .15)}</span>
+          </div>
+        </div>`).join('');
+
+      document.getElementById('foot').innerHTML =
+        `Revenue multiples: ${rM.map(m => m.toFixed(2) + '×').join(' / ')} ` +
+        `(${(recPct * 100).toFixed(0)}% recurring blended) &nbsp;|&nbsp; ` +
+        `Profit: 2.5×/3.0×/4.0× &nbsp;|&nbsp; ` +
+        `IP: Build Cost ×1.5/2.0/2.5 &nbsp;|&nbsp; ` +
+        `HR Levels: L1=1.5× · L2=2.0× · L3=2.5× of total comp &nbsp;|&nbsp; ` +
+        `CC Discount: −${(ccD * 100).toFixed(0)}% · ` +
+        `Retainer Non-Transfer (${(retPct * 100).toFixed(0)}% × 0.40): −${(retRisk * 100).toFixed(1)}% ` +
+        `&nbsp;|&nbsp; FX: 1 USD = ₹${fx}`;
+
+      document.getElementById('res-empty').style.display   = 'none';
+      document.getElementById('res-content').style.display = 'block';
+
+      buildReport({ fx, arr, profit, ar, sow, pipe, forecast, hrRows, ipRows, hrRaw, ipT, tots, arV, pipeV, ccD, retRisk });
+
+      hasResults = true;
+
+      if (!silent) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        document.getElementById('tab-val').classList.add('active');
+        document.querySelectorAll('.tab-btn')[3].classList.add('active');
+        document.getElementById('calc-btn-wrap').style.display = 'none';
+      }
+    }
+
+    /* ─────────────────────────────────────────────
+       REPORT
+    ───────────────────────────────────────────── */
+    function buildReport({ fx, arr, profit, ar, sow, pipe, forecast, hrRows, ipRows, hrRaw, ipT, tots, arV, pipeV, ccD, retRisk }) {
+      const fp = n => inrMode ? fi(n, fx) : fu(n);
+
+      const totalComp       = hrRows.reduce((a, r) => a + r.comp,     0);
+      const totalFixed      = hrRows.reduce((a, r) => a + r.fixed,    0);
+      const totalVar        = hrRows.reduce((a, r) => a + r.variable, 0);
+      const totalHRVal      = hrRaw[1]; // base
+      const baseTotal       = tots[1];
+      const hcPctRevenue    = arr > 0 ? (totalComp / arr * 100).toFixed(1) + '%' : '—';
+      const profitMargin    = arr > 0 ? (profit / arr * 100).toFixed(1) + '%' : '—';
+      const arTotal         = ar + sow;
+      const pipeTotal       = pipe + forecast;
+
+      // Key Metrics Strip
+      document.getElementById('metric-strip').innerHTML = `
+        <div class="metric-box">
+          <div class="mb-label">Base Valuation</div>
+          <div class="mb-val mb-blue">${fp(baseTotal)}</div>
+          <div class="mb-sub">${inrMode ? fu(baseTotal) : fi(baseTotal, fx)}</div>
+        </div>
+        <div class="metric-box">
+          <div class="mb-label">Total HC Expense</div>
+          <div class="mb-val mb-amber">${fp(totalComp)}</div>
+          <div class="mb-sub">${hcPctRevenue} of Revenue</div>
+        </div>
+        <div class="metric-box">
+          <div class="mb-label">Net Profit</div>
+          <div class="mb-val ${profit >= 0 ? 'mb-green' : 'mb-red'}">${fp(profit)}</div>
+          <div class="mb-sub">${profitMargin} margin</div>
+        </div>
+        <div class="metric-box">
+          <div class="mb-label">AR + Pipeline</div>
+          <div class="mb-val mb-purple">${fp(arTotal + pipeTotal)}</div>
+          <div class="mb-sub">AR ${fp(arTotal)} · Pipe ${fp(pipeTotal)}</div>
+        </div>`;
+
+      // Table 1: HC vs Valuation
+      let hcRows = `
+        <tr>
+          <th>Resource</th>
+          <th>Level</th>
+          <th class="r">Fixed Pay</th>
+          <th class="r">Variable Pay</th>
+          <th class="r">Total Comp</th>
+          <th class="r">Acqui-Hire Value</th>
+        </tr>`;
+      hrRows.forEach(r => {
+        hcRows += `
+          <tr>
+            <td>${r.name}</td>
+            <td style="font-family:'IBM Plex Mono',monospace">L${r.level} ×${r.mult}</td>
+            <td class="r">${fp(r.fixed)}</td>
+            <td class="r">${fp(r.variable)}</td>
+            <td class="r">${fp(r.comp)}</td>
+            <td class="r" style="color:var(--base);font-weight:600">${fp(r.val)}</td>
+          </tr>`;
+      });
+      hcRows += `
+        <tr class="hi">
+          <td colspan="2">TOTAL</td>
+          <td class="r">${fp(totalFixed)}</td>
+          <td class="r">${fp(totalVar)}</td>
+          <td class="r">${fp(totalComp)}</td>
+          <td class="r">${fp(totalHRVal)}</td>
+        </tr>`;
+      document.getElementById('rpt-hc-table').innerHTML = hcRows;
+
+      // Table 2: Profit after HC
+      const scenarios = ['Conservative', 'Base Case', 'Strategic'];
+      const recPct    = v('rec_pct') / 100;
+      let profRows = `
+        <tr>
+          <th>Scenario</th>
+          <th class="r">Gross Revenue</th>
+          <th class="r">HC Expense</th>
+          <th class="r">Net Profit</th>
+          <th class="r">Profit Margin</th>
+          <th class="r">HC % Revenue</th>
+        </tr>`;
+      scenarios.forEach((sc, i) => {
+        const revEstimate = [
+          arr * ((1 - recPct) * 0.8  + recPct * 1.5),
+          arr,
+          arr * ((1 - recPct) * 1.75 + recPct * 4.0)
+        ][i];
+        const np     = revEstimate - totalComp;
+        const margin = revEstimate > 0 ? (np / revEstimate * 100).toFixed(1) + '%' : '—';
+        const hcPct  = revEstimate > 0 ? (totalComp / revEstimate * 100).toFixed(1) + '%' : '—';
+        const isNeg  = np < 0;
+        profRows += `
+          <tr${isNeg ? ' class="neg"' : ''}>
+            <td>${sc}</td>
+            <td class="r">${fp(revEstimate)}</td>
+            <td class="r" style="color:var(--amber)">${fp(totalComp)}</td>
+            <td class="r" style="color:${isNeg ? 'var(--red)' : 'var(--con)'};font-weight:600">${fp(np)}</td>
+            <td class="r">${margin}</td>
+            <td class="r">${hcPct}</td>
+          </tr>`;
+      });
+      document.getElementById('rpt-profit-table').innerHTML = profRows;
+
+      // Section 3: AR & Pipeline Chart
+      const items = [
+        { label: 'AR (Invoices)',   val: ar,       color: '#1a4d8f' },
+        { label: 'SOWs / Backlog',  val: sow,      color: '#2d6a4f' },
+        { label: 'Active Pipeline', val: pipe,     color: '#7b2d8f' },
+        { label: 'Forecasted',      val: forecast, color: '#b45309' },
+      ];
+      const maxVal = Math.max(...items.map(i => i.val), 1);
+
+      let chartHTML = `
+        <div class="bar-wrap">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;">
+            <div>
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:10px">
+                Revenue Visibility
+              </div>`;
+      items.forEach(it => {
+        chartHTML += `
+              <div class="bar-row">
+                <div class="bar-label">${it.label}</div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:${(it.val / maxVal * 100).toFixed(1)}%;background:${it.color}"></div>
+                </div>
+                <div class="bar-val" style="color:${it.color}">${fp(it.val)}</div>
+              </div>`;
+      });
+
+      const coverageItems = [
+        { label: 'Net Profit',          val: profit,                        color: 'var(--con)' },
+        { label: 'Profit after HC',     val: profit - totalComp,            color: profit - totalComp >= 0 ? 'var(--con)' : 'var(--red)' },
+        { label: 'AR (weighted 92%)',   val: ar * .9 + sow * .9,            color: 'var(--base)' },
+        { label: 'Pipeline (weighted)', val: pipe * .3 + forecast * .15,    color: 'var(--strat)' },
+      ];
+      const maxV2 = Math.max(...coverageItems.map(i => Math.abs(i.val)), 1);
+
+      chartHTML += `
+            </div>
+            <div>
+              <div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:10px">
+                Profit vs Pipeline Coverage
+              </div>`;
+      coverageItems.forEach(it => {
+        chartHTML += `
+              <div class="bar-row">
+                <div class="bar-label">${it.label}</div>
+                <div class="bar-track">
+                  <div class="bar-fill" style="width:${(Math.abs(it.val) / maxV2 * 100).toFixed(1)}%;background:${it.color}"></div>
+                </div>
+                <div class="bar-val" style="color:${it.color}">${fp(it.val)}</div>
+              </div>`;
+      });
+
+      const weighted = (ar * .9 + sow * .9) + (pipe * .3 + forecast * .15);
+      chartHTML += `
+            </div>
+          </div>
+          <div style="margin-top:16px;border-top:1px solid var(--border);padding-top:12px;">
+            <table class="rt" style="margin:0">
+              <tr>
+                <th>Metric</th>
+                <th class="r">${inrMode ? 'Value (INR ₹)' : 'Value (USD $)'}</th>
+                <th class="r">${inrMode ? 'USD ($)' : 'INR (₹)'}</th>
+                <th class="r">% of Revenue</th>
+              </tr>
+              <tr>
+                <td>Total AR (Invoices + SOWs)</td>
+                <td class="r">${fp(arTotal)}</td>
+                <td class="r">${inrMode ? fu(arTotal) : fi(arTotal, fx)}</td>
+                <td class="r">${pct(arTotal, arr)}</td>
+              </tr>
+              <tr>
+                <td>Active Pipeline (Proposals)</td>
+                <td class="r">${fp(pipe)}</td>
+                <td class="r">${inrMode ? fu(pipe) : fi(pipe, fx)}</td>
+                <td class="r">${pct(pipe, arr)}</td>
+              </tr>
+              <tr>
+                <td>Forecasted Opportunities</td>
+                <td class="r">${fp(forecast)}</td>
+                <td class="r">${inrMode ? fu(forecast) : fi(forecast, fx)}</td>
+                <td class="r">${pct(forecast, arr)}</td>
+              </tr>
+              <tr>
+                <td>Net Profit</td>
+                <td class="r" style="color:${profit >= 0 ? 'var(--con)' : 'var(--red)'}">${fp(profit)}</td>
+                <td class="r">${inrMode ? fu(profit) : fi(profit, fx)}</td>
+                <td class="r">${pct(profit, arr)}</td>
+              </tr>
+              <tr class="hi">
+                <td>Total Revenue Potential (AR + Pipeline weighted)</td>
+                <td class="r">${fp(weighted)}</td>
+                <td class="r">${inrMode ? fu(weighted) : fi(weighted, fx)}</td>
+                <td class="r">${pct(weighted, arr)}</td>
+              </tr>
+            </table>
+          </div>
+        </div>`;
+
+      document.getElementById('rpt-pipeline-body').innerHTML = chartHTML;
+
+      document.getElementById('rpt-empty').style.display   = 'none';
+      document.getElementById('rpt-content').style.display = 'block';
+    }
+
+    /* ─────────────────────────────────────────────
+       SEED DATA
+    ───────────────────────────────────────────── */
+    addHRRow({ name: 'Vivek', skills: 'Agentic AI, LangChain, Strategy', level: 3, fixed: 40000, variable: 10000 });
+
+    addIPRow({ name: 'Atlas Framework',  desc: 'Agentic Framework',                 cost: 50000, rev: 30000 });
+    addIPRow({ name: 'SemaBridge',       desc: 'Metadata Sync Platform',            cost: 70000, rev: 50000 });
+    addIPRow({ name: 'DataBuddy',        desc: 'Cloud Data Platform Assessment',    cost: 40000, rev: 20000 });
+    addIPRow({ name: 'AgentBridge',      desc: 'Agentic Migration Platform',        cost: 80000, rev: 40000 });
+  </script>
+</body>
+</html>
