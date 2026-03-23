@@ -1001,17 +1001,17 @@
       <div class="grid3">
         <div class="field">
           <label>Total Revenue (USD)</label>
-          <input type="number" id="f_arr" value="100000">
+          <input type="number" id="f_arr" placeholder="0">
           <span class="hint">Total revenue for the period</span>
         </div>
         <div class="field">
           <label>Net Profit (USD)</label>
-          <input type="number" id="f_profit" value="25000">
+          <input type="number" id="f_profit" placeholder="0">
           <span class="hint">After all operating expenses</span>
         </div>
         <div class="field">
           <label>Recurring / Retainer Revenue (%)</label>
-          <input type="number" id="rec_pct" value="30">
+          <input type="number" id="rec_pct" placeholder="0">
           <span class="hint">% of revenue that is recurring</span>
         </div>
       </div>
@@ -1024,12 +1024,12 @@
       <div class="grid2">
         <div class="field">
           <label>Unpaid Invoices / AR (USD)</label>
-          <input type="number" id="f_ar" value="20000">
+          <input type="number" id="f_ar" placeholder="0">
           <span class="hint">Outstanding invoices raised</span>
         </div>
         <div class="field">
           <label>Signed SOWs / Contracted Backlog (USD)</label>
-          <input type="number" id="f_sow" value="40000">
+          <input type="number" id="f_sow" placeholder="0">
           <span class="hint">Committed future revenue</span>
         </div>
       </div>
@@ -1042,12 +1042,12 @@
       <div class="grid2">
         <div class="field">
           <label>Active Pipeline — Proposals Sent (USD)</label>
-          <input type="number" id="f_pipe" value="80000">
+          <input type="number" id="f_pipe" placeholder="0">
           <span class="hint">Unsigned opportunities in flight</span>
         </div>
         <div class="field">
           <label>Forecasted / Early Stage Opportunities (USD)</label>
-          <input type="number" id="f_forecast" value="50000">
+          <input type="number" id="f_forecast" placeholder="0">
           <span class="hint">Unqualified / future opportunities</span>
         </div>
       </div>
@@ -1058,12 +1058,12 @@
       <div class="grid2">
         <div class="field">
           <label>Top Client as % of Total Revenue</label>
-          <input type="number" id="cc_pct" value="35">
+          <input type="number" id="cc_pct" placeholder="0">
           <span class="hint">Drives customer concentration discount</span>
         </div>
         <div class="field">
           <label>Retainer Revenue (% of Total)</label>
-          <input type="number" id="ret_pct" value="30" min="0" max="100">
+          <input type="number" id="ret_pct" placeholder="0" min="0" max="100">
           <span class="hint">Retainer revenue won't transfer with the company — discount = % × 0.40</span>
         </div>
       </div>
@@ -1086,19 +1086,18 @@
     <table class="dyn-table" id="hr-table">
       <thead>
         <tr>
-          <th style="width: 20%">Resource Name</th>
-          <th style="width: 28%">Skills</th>
-          <th style="width: 10%">Level</th>
-          <th class="r" style="width: 13%">Fixed Pay (USD)</th>
-          <th class="r" style="width: 13%">Variable Pay (USD)</th>
-          <th class="r" style="width: 12%">Total Comp</th>
+          <th style="width: 30%">Resource Name</th>
+          <th style="width: 14%">Level</th>
+          <th class="r" style="width: 17%">Fixed Pay (USD)</th>
+          <th class="r" style="width: 17%">Variable Pay (USD)</th>
+          <th class="r" style="width: 14%">Total Comp</th>
           <th style="width: 4%"></th>
         </tr>
       </thead>
       <tbody id="hr-tbody"></tbody>
       <tfoot>
         <tr class="sub-row">
-          <td colspan="3">Team Total</td>
+          <td colspan="2">Team Total</td>
           <td id="hr-tot-fixed" style="text-align: right"></td>
           <td id="hr-tot-var"   style="text-align: right"></td>
           <td id="hr-tot-comp"  style="text-align: right"></td>
@@ -1125,18 +1124,17 @@
     <table class="dyn-table" id="ip-table">
       <thead>
         <tr>
-          <th style="width: 22%">Product / Solution Name</th>
-          <th style="width: 32%">Description / Category</th>
-          <th class="r" style="width: 15%">Build Cost (USD)</th>
-          <th class="r" style="width: 15%">Potential Rev (USD)</th>
-          <th class="r" style="width: 12%">IP Value (Base)</th>
+          <th style="width: 38%">Product / Solution Name</th>
+          <th class="r" style="width: 20%">Build Cost (USD)</th>
+          <th class="r" style="width: 20%">Potential Rev (USD)</th>
+          <th class="r" style="width: 14%">IP Value (Base)</th>
           <th style="width: 4%"></th>
         </tr>
       </thead>
       <tbody id="ip-tbody"></tbody>
       <tfoot>
         <tr class="sub-row" id="ip-sub-row">
-          <td colspan="2">IP Portfolio Total</td>
+          <td colspan="1">IP Portfolio Total</td>
           <td id="ip-tot-cost" style="text-align: right"></td>
           <td id="ip-tot-rev"  style="text-align: right"></td>
           <td id="ip-tot-val"  style="text-align: right"></td>
@@ -1630,7 +1628,6 @@
         const sel        = tr.querySelector('select');
         humanCapital.push({
           name:     textInputs[0]?.value || '',
-          skills:   textInputs[1]?.value || '',
           level:    parseInt(sel?.value) || 1,
           fixed:    parseFloat(numInputs[0]?.value) || 0,
           variable: parseFloat(numInputs[1]?.value) || 0
@@ -1643,7 +1640,6 @@
         const numInputs  = tr.querySelectorAll('input[type=number]');
         ip.push({
           name: textInputs[0]?.value || '',
-          desc: textInputs[1]?.value || '',
           cost: parseFloat(numInputs[0]?.value) || 0,
           rev:  parseFloat(numInputs[1]?.value) || 0
         });
@@ -1756,10 +1752,6 @@
             value="${d.name || ''}" oninput="refreshHR()">
         </td>
         <td>
-          <input type="text" placeholder="e.g. Agentic AI, LangChain, Python"
-            value="${d.skills || ''}" oninput="refreshHR()">
-        </td>
-        <td>
           <select oninput="refreshHR()"
             style="width:100%;font-family:'IBM Plex Mono',monospace;font-size:11px;
                    border:1px solid var(--border);border-radius:3px;
@@ -1821,10 +1813,6 @@
             value="${d.name || ''}" oninput="refreshIP()">
         </td>
         <td>
-          <input type="text" placeholder="e.g. Agentic AI Platform"
-            value="${d.desc || ''}" oninput="refreshIP()">
-        </td>
-        <td>
           <input type="number" placeholder="0" value="${d.cost || ''}"
             oninput="refreshIP()" style="text-align:right">
         </td>
@@ -1866,6 +1854,12 @@
        CALCULATE
     ───────────────────────────────────────────── */
     function calculate(silent = false) {
+      const arr_raw = document.getElementById('f_arr').value.trim();
+      const profit_raw = document.getElementById('f_profit').value.trim();
+      if (!arr_raw || !profit_raw) {
+        alert('Please enter at least Total Revenue and Net Profit in the Financials tab before calculating.');
+        return;
+      }
       const fx       = v('fxRate');
       const arr      = v('f_arr');
       const profit   = v('f_profit');
@@ -1896,7 +1890,6 @@
       document.querySelectorAll('#hr-tbody tr').forEach(tr => {
         const ins    = tr.querySelectorAll('input[type=number]');
         const nameIn = tr.querySelector('input[type=text]');
-        const skillIn= tr.querySelectorAll('input[type=text]')[1];
         const sel    = tr.querySelector('select');
         const f      = parseFloat(ins[0]?.value) || 0;
         const vv     = parseFloat(ins[1]?.value) || 0;
@@ -1906,7 +1899,6 @@
         hrRaw = hrRaw.map(h => h + c * mult);
         hrRows.push({
           name: nameIn?.value || 'Resource',
-          skills: skillIn?.value || '',
           level: lvl, mult, fixed: f, variable: vv, comp: c, val: c * mult
         });
       });
@@ -2265,12 +2257,10 @@
     /* ─────────────────────────────────────────────
        SEED DATA
     ───────────────────────────────────────────── */
-    addHRRow({ name: 'Vivek', skills: 'Agentic AI, LangChain, Strategy', level: 3, fixed: 40000, variable: 10000 });
-
-    addIPRow({ name: 'Atlas Framework',  desc: 'Agentic Framework',                 cost: 50000, rev: 30000 });
-    addIPRow({ name: 'SemaBridge',       desc: 'Metadata Sync Platform',            cost: 70000, rev: 50000 });
-    addIPRow({ name: 'DataBuddy',        desc: 'Cloud Data Platform Assessment',    cost: 40000, rev: 20000 });
-    addIPRow({ name: 'AgentBridge',      desc: 'Agentic Migration Platform',        cost: 80000, rev: 40000 });
+    addIPRow({ name: 'Atlas Framework' });
+    addIPRow({ name: 'SemaBridge' });
+    addIPRow({ name: 'DataBuddy' });
+    addIPRow({ name: 'AgentBridge' });
   </script>
 </body>
 </html>
