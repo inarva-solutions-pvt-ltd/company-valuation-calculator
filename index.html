@@ -983,10 +983,9 @@
   <div class="tabs">
     <button class="tab-btn active" onclick="goTab('fin', this)">① Financials</button>
     <button class="tab-btn"        onclick="goTab('hr',  this)">② Human Capital</button>
-    <button class="tab-btn"        onclick="goTab('ip',  this)">③ IP</button>
-    <button class="tab-btn"        onclick="goTab('val', this)">④ Valuation</button>
-    <button class="tab-btn"        onclick="goTab('rpt', this)">⑤ Report</button>
-    <button class="tab-btn"        onclick="goTab('inf', this)">⑥ Formula Guide</button>
+    <button class="tab-btn"        onclick="goTab('val', this)">③ Valuation</button>
+    <button class="tab-btn"        onclick="goTab('rpt', this)">④ Report</button>
+    <button class="tab-btn"        onclick="goTab('inf', this)">⑤ Formula Guide</button>
   </div>
 
   <!-- ═══════════════════════════════
@@ -1000,12 +999,12 @@
       </div>
       <div class="grid3">
         <div class="field">
-          <label>Total Revenue (USD)</label>
+          <label>Total Revenue</label>
           <input type="number" id="f_arr" placeholder="0">
           <span class="hint">Total revenue for the period</span>
         </div>
         <div class="field">
-          <label>Net Profit (USD)</label>
+          <label>Net Profit</label>
           <input type="number" id="f_profit" placeholder="0">
           <span class="hint">After all operating expenses</span>
         </div>
@@ -1023,12 +1022,12 @@
       </div>
       <div class="grid2">
         <div class="field">
-          <label>Unpaid Invoices / AR (USD)</label>
+          <label>Unpaid Invoices / AR</label>
           <input type="number" id="f_ar" placeholder="0">
           <span class="hint">Outstanding invoices raised</span>
         </div>
         <div class="field">
-          <label>Signed SOWs / Contracted Backlog (USD)</label>
+          <label>Signed SOWs / Contracted Backlog</label>
           <input type="number" id="f_sow" placeholder="0">
           <span class="hint">Committed future revenue</span>
         </div>
@@ -1041,12 +1040,12 @@
       </div>
       <div class="grid2">
         <div class="field">
-          <label>Active Pipeline — Proposals Sent (USD)</label>
+          <label>Active Pipeline — Proposals Sent</label>
           <input type="number" id="f_pipe" placeholder="0">
           <span class="hint">Unsigned opportunities in flight</span>
         </div>
         <div class="field">
-          <label>Forecasted / Early Stage Opportunities (USD)</label>
+          <label>Forecasted / Early Stage Opportunities</label>
           <input type="number" id="f_forecast" placeholder="0">
           <span class="hint">Unqualified / future opportunities</span>
         </div>
@@ -1088,8 +1087,8 @@
         <tr>
           <th style="width: 30%">Resource Name</th>
           <th style="width: 14%">Level</th>
-          <th class="r" style="width: 17%">Fixed Pay (USD)</th>
-          <th class="r" style="width: 17%">Variable Pay (USD)</th>
+          <th class="r" style="width: 17%">Fixed Pay</th>
+          <th class="r" style="width: 17%">Variable Pay</th>
           <th class="r" style="width: 14%">Total Comp</th>
           <th style="width: 4%"></th>
         </tr>
@@ -1108,43 +1107,6 @@
     <button class="add-btn" onclick="addHRRow()">+ Add Resource</button>
 
   </div><!-- /tab-hr -->
-
-  <!-- ═══════════════════════════════
-       TAB 3 — IP
-  ═══════════════════════════════ -->
-  <div class="panel" id="tab-ip">
-
-    <div class="sec-title">
-      <span class="pill p-ip">Bucket 5</span> IP — Products &amp; Solutions
-    </div>
-    <p style="font-size: 11px; color: var(--muted); margin-bottom: 14px;">
-      Add each product or solution. IP Multiple: 1.5× (Conservative) · 2.0× (Base) · 2.5× (Strategic) — applied to Build Cost.
-    </p>
-
-    <table class="dyn-table" id="ip-table">
-      <thead>
-        <tr>
-          <th style="width: 38%">Product / Solution Name</th>
-          <th class="r" style="width: 20%">Build Cost (USD)</th>
-          <th class="r" style="width: 20%">Potential Rev (USD)</th>
-          <th class="r" style="width: 14%">IP Value (Base)</th>
-          <th style="width: 4%"></th>
-        </tr>
-      </thead>
-      <tbody id="ip-tbody"></tbody>
-      <tfoot>
-        <tr class="sub-row" id="ip-sub-row">
-          <td colspan="1">IP Portfolio Total</td>
-          <td id="ip-tot-cost" style="text-align: right"></td>
-          <td id="ip-tot-rev"  style="text-align: right"></td>
-          <td id="ip-tot-val"  style="text-align: right"></td>
-          <td></td>
-        </tr>
-      </tfoot>
-    </table>
-    <button class="add-btn" onclick="addIPRow()">+ Add Product / Solution</button>
-
-  </div><!-- /tab-ip -->
 
   <!-- ═══════════════════════════════
        TAB 4 — VALUATION
@@ -1444,60 +1406,15 @@
             </tbody>
           </table>
           <div class="fmla-note">
-            HC multiplier is the same across all three scenarios — talent value doesn't change with the deal structure. Only the financial and IP buckets vary.
+            HC multiplier is the same across all three scenarios — talent value doesn't change with the deal structure. Only the financial buckets vary.
           </div>
         </div>
       </div>
 
     </div><!-- /inf-grid row 2 -->
 
-    <!-- Row 3: Bucket 5 full width -->
+    <!-- Row 3: Risk Adjustment full width -->
     <div class="inf-grid">
-
-      <!-- Bucket 5 -->
-      <div class="fcard">
-        <div class="fcard-hdr">
-          <span class="pill p-ip">Bucket 5</span>
-          <span class="fcard-hdr-text">IP — Products &amp; Solutions</span>
-        </div>
-        <div class="fcard-body">
-          <div class="fcard-desc">
-            Replacement-cost methodology: what would it cost a buyer to build equivalent IP from scratch, adjusted for strategic value. Applied to each product's build cost independently.
-          </div>
-          <table class="fmla-table">
-            <thead>
-              <tr>
-                <th>Scenario</th>
-                <th>Rationale</th>
-                <th class="r">Formula</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="label-col con">Conservative</td>
-                <td>Near-replacement value only</td>
-                <td class="r con">Build Cost × 1.5×</td>
-              </tr>
-              <tr>
-                <td class="label-col bas">Base</td>
-                <td>Replacement + moderate strategic fit</td>
-                <td class="r bas">Build Cost × 2.0×</td>
-              </tr>
-              <tr>
-                <td class="label-col str">Strategic</td>
-                <td>Unique IP with high buyer leverage</td>
-                <td class="r str">Build Cost × 2.5×</td>
-              </tr>
-              <tr class="hi">
-                <td class="label-col" colspan="3">Bucket 5 = Σ Build Cost × IP Multiple (per product)</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="fmla-note">
-            Potential Revenue entered for each product is for context only — it does not directly affect the valuation. It helps the buyer understand revenue upside beyond build cost.
-          </div>
-        </div>
-      </div>
 
       <!-- Risk Adjustment -->
       <div class="fcard">
@@ -1507,7 +1424,7 @@
         </div>
         <div class="fcard-body">
           <div class="fcard-desc">
-            Two risk factors reduce the pre-total. Both are applied as a single combined percentage discount to the sum of all five buckets.
+            Two risk factors reduce the pre-total. Both are applied as a single combined percentage discount to the sum of all four buckets.
           </div>
 
           <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); margin-bottom: 6px;">
@@ -1569,10 +1486,8 @@
           <span style="color: var(--muted);">Step 4</span>
           <span>Bucket 4 = Σ (Comp × Level Multiplier) per resource</span>
           <span style="color: var(--muted);">Step 5</span>
-          <span>Bucket 5 = Σ (Build Cost × IP Multiple) per product</span>
+          <span>Pre-Total = Bucket 1 + 2 + 3 + 4</span>
           <span style="color: var(--muted);">Step 6</span>
-          <span>Pre-Total = Bucket 1 + 2 + 3 + 4 + 5</span>
-          <span style="color: var(--muted);">Step 7</span>
           <span>Discount = Pre-Total × (CC Discount + Retainer Discount)</span>
           <span style="color: var(--muted); font-weight: 700;">Final</span>
           <span style="font-weight: 700; color: var(--ink);">Valuation = Pre-Total − Discount</span>
@@ -1634,18 +1549,7 @@
         });
       });
 
-      const ip = [];
-      document.querySelectorAll('#ip-tbody tr').forEach(tr => {
-        const textInputs = tr.querySelectorAll('input[type=text]');
-        const numInputs  = tr.querySelectorAll('input[type=number]');
-        ip.push({
-          name: textInputs[0]?.value || '',
-          cost: parseFloat(numInputs[0]?.value) || 0,
-          rev:  parseFloat(numInputs[1]?.value) || 0
-        });
-      });
-
-      const payload = JSON.stringify({ financials, humanCapital, ip }, null, 2);
+      const payload = JSON.stringify({ financials, humanCapital }, null, 2);
       const blob    = new Blob([payload], { type: 'application/json' });
       const a       = document.createElement('a');
       a.href        = URL.createObjectURL(blob);
@@ -1680,12 +1584,6 @@
         if (Array.isArray(data.humanCapital)) {
           document.getElementById('hr-tbody').innerHTML = '';
           data.humanCapital.forEach(r => addHRRow(r));
-        }
-
-        // IP
-        if (Array.isArray(data.ip)) {
-          document.getElementById('ip-tbody').innerHTML = '';
-          data.ip.forEach(p => addIPRow(p));
         }
 
         // Reset the file input so the same file can be re-imported
@@ -1800,57 +1698,6 @@
     }
 
     /* ─────────────────────────────────────────────
-       IP TABLE
-    ───────────────────────────────────────────── */
-    function addIPRow(d) {
-      d = d || {};
-      const id = 'ip' + (Date.now() + Math.random()).toString(36);
-      const tr = document.createElement('tr');
-      tr.id = 'ipr-' + id;
-      tr.innerHTML = `
-        <td>
-          <input type="text" placeholder="e.g. Agentic Workflow Engine"
-            value="${d.name || ''}" oninput="refreshIP()">
-        </td>
-        <td>
-          <input type="number" placeholder="0" value="${d.cost || ''}"
-            oninput="refreshIP()" style="text-align:right">
-        </td>
-        <td>
-          <input type="number" placeholder="0" value="${d.rev || ''}"
-            oninput="refreshIP()" style="text-align:right">
-        </td>
-        <td class="tot-cell" id="ipv-${id}">—</td>
-        <td class="del-cell">
-          <button class="del-btn" onclick="delIP('${id}')">✕</button>
-        </td>`;
-      document.getElementById('ip-tbody').appendChild(tr);
-      refreshIP();
-    }
-
-    function delIP(id) {
-      document.getElementById('ipr-' + id)?.remove();
-      refreshIP();
-    }
-
-    function refreshIP() {
-      let tC = 0, tR = 0, tV = 0;
-      document.querySelectorAll('#ip-tbody tr').forEach(tr => {
-        const ins  = tr.querySelectorAll('input[type=number]');
-        const cost = parseFloat(ins[0]?.value) || 0;
-        const rev  = parseFloat(ins[1]?.value) || 0;
-        const val  = cost * 2.0; // base 2×
-        const id   = tr.id.replace('ipr-', '');
-        const cell = document.getElementById('ipv-' + id);
-        if (cell) cell.textContent = val > 0 ? fc(val) + ' (2×)' : '—';
-        tC += cost; tR += rev; tV += val;
-      });
-      document.getElementById('ip-tot-cost').textContent = tC > 0 ? fc(tC) : '—';
-      document.getElementById('ip-tot-rev').textContent  = tR > 0 ? fc(tR) : '—';
-      document.getElementById('ip-tot-val').textContent  = tV > 0 ? fc(tV) : '—';
-    }
-
-    /* ─────────────────────────────────────────────
        CALCULATE
     ───────────────────────────────────────────── */
     function calculate(silent = false) {
@@ -1904,19 +1751,6 @@
       });
       const hrV = hrRaw;
 
-      // IP — read rows
-      let ipT = [0, 0, 0];
-      let ipRows = [];
-      document.querySelectorAll('#ip-tbody tr').forEach(tr => {
-        const ins    = tr.querySelectorAll('input[type=number]');
-        const nameIn = tr.querySelector('input[type=text]');
-        const cost   = parseFloat(ins[0]?.value) || 0;
-        const rev    = parseFloat(ins[1]?.value) || 0;
-        const vals   = [cost * 1.5, cost * 2.0, cost * 2.5];
-        ipT = ipT.map((x, s) => x + vals[s]);
-        ipRows.push({ name: nameIn?.value || 'Product', cost, rev, vals });
-      });
-
       // Customer concentration discount
       let ccD = 0;
       if      (ccPct >= 50) ccD = 0.30;
@@ -1926,7 +1760,7 @@
 
       // Totals
       const finS    = [0, 1, 2].map(s => Math.max(arr * rM[s], profit * sM[s]) + arV[s] + pipeV[s]);
-      const preT    = [0, 1, 2].map(s => finS[s] + hrV[s] + ipT[s]);
+      const preT    = [0, 1, 2].map(s => finS[s] + hrV[s]);
       const discAmt = preT.map(t => -t * (ccD + retRisk));
       const tots    = preT.map((t, s) => t + discAmt[s]);
 
@@ -1973,16 +1807,6 @@
       }
       rows += subRow('Bucket 4 Sub-total', hrV);
 
-      rows += bhRow('BUCKET 5 — IP (Build Cost × 1.5× / 2.0× / 2.5×)');
-      if (!ipRows.length) {
-        rows += `<tr><td colspan="5" style="text-align:center;color:var(--muted);font-size:11px;padding:12px">No products added</td></tr>`;
-      } else {
-        ipRows.forEach(p => {
-          rows += dr(p.name, `${fc(p.cost)} × 1.5× / 2.0× / 2.5×`, p.vals);
-        });
-      }
-      rows += subRow('Bucket 5 Sub-total', ipT);
-
       const adjLabel = `RISK ADJUSTMENT — CC: ${ccPct}% (−${(ccD * 100).toFixed(0)}%) ` +
         `+ Retainer Non-Transfer: ${(retPct * 100).toFixed(0)}% × 0.40 = −${(retRisk * 100).toFixed(1)}% ` +
         `· Total Discount: −${((ccD + retRisk) * 100).toFixed(1)}%`;
@@ -2024,7 +1848,6 @@
         `Revenue multiples: ${rM.map(m => m.toFixed(2) + '×').join(' / ')} ` +
         `(${(recPct * 100).toFixed(0)}% recurring blended) &nbsp;|&nbsp; ` +
         `Profit: 2.5×/3.0×/4.0× &nbsp;|&nbsp; ` +
-        `IP: Build Cost ×1.5/2.0/2.5 &nbsp;|&nbsp; ` +
         `HR Levels: L1=1.5× · L2=2.0× · L3=2.5× of total comp &nbsp;|&nbsp; ` +
         `CC Discount: −${(ccD * 100).toFixed(0)}% · ` +
         `Retainer Non-Transfer (${(retPct * 100).toFixed(0)}% × 0.40): −${(retRisk * 100).toFixed(1)}% ` +
@@ -2033,7 +1856,7 @@
       document.getElementById('res-empty').style.display   = 'none';
       document.getElementById('res-content').style.display = 'block';
 
-      buildReport({ fx, arr, profit, ar, sow, pipe, forecast, hrRows, ipRows, hrRaw, ipT, tots, arV, pipeV, ccD, retRisk });
+      buildReport({ fx, arr, profit, ar, sow, pipe, forecast, hrRows, hrRaw, tots, arV, pipeV, ccD, retRisk });
 
       hasResults = true;
 
@@ -2041,7 +1864,7 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
         document.getElementById('tab-val').classList.add('active');
-        document.querySelectorAll('.tab-btn')[3].classList.add('active');
+        document.querySelectorAll('.tab-btn')[2].classList.add('active');
         document.getElementById('calc-btn-wrap').style.display = 'none';
       }
     }
@@ -2049,7 +1872,7 @@
     /* ─────────────────────────────────────────────
        REPORT
     ───────────────────────────────────────────── */
-    function buildReport({ fx, arr, profit, ar, sow, pipe, forecast, hrRows, ipRows, hrRaw, ipT, tots, arV, pipeV, ccD, retRisk }) {
+    function buildReport({ fx, arr, profit, ar, sow, pipe, forecast, hrRows, hrRaw, tots, arV, pipeV, ccD, retRisk }) {
       const fp = n => inrMode ? fi(n, fx) : fu(n);
 
       const totalComp       = hrRows.reduce((a, r) => a + r.comp,     0);
@@ -2257,10 +2080,6 @@
     /* ─────────────────────────────────────────────
        SEED DATA
     ───────────────────────────────────────────── */
-    addIPRow({ name: 'Atlas Framework' });
-    addIPRow({ name: 'SemaBridge' });
-    addIPRow({ name: 'DataBuddy' });
-    addIPRow({ name: 'AgentBridge' });
   </script>
 </body>
 </html>
