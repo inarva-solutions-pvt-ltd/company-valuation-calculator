@@ -1008,11 +1008,6 @@
           <input type="number" id="f_profit" placeholder="0">
           <span class="hint">After all operating expenses</span>
         </div>
-        <div class="field">
-          <label>Recurring / Retainer Revenue (%)</label>
-          <input type="number" id="rec_pct" placeholder="0">
-          <span class="hint">% of revenue that is recurring</span>
-        </div>
       </div>
     </div>
 
@@ -1061,7 +1056,7 @@
           <span class="hint">Drives customer concentration discount</span>
         </div>
         <div class="field">
-          <label>Retainer Revenue (% of Total)</label>
+          <label>Contractor Retainer Revenue (% of Total)</label>
           <input type="number" id="ret_pct" placeholder="0" min="0" max="100">
           <span class="hint">Retainer revenue won't transfer with the company — discount = % × 0.40</span>
         </div>
@@ -1245,12 +1240,6 @@
                 <td class="r str">1.75×</td>
               </tr>
               <tr>
-                <td class="label-col">Retainer / recurring multiple</td>
-                <td class="r con">1.50×</td>
-                <td class="r bas">2.50×</td>
-                <td class="r str">4.00×</td>
-              </tr>
-              <tr>
                 <td class="label-col">Profit multiple</td>
                 <td class="r con">2.50×</td>
                 <td class="r bas">3.00×</td>
@@ -1258,19 +1247,13 @@
               </tr>
               <tr class="hi">
                 <td class="label-col" colspan="4">
-                  Blended Revenue Multiple = (1 − Rec%) × Project + Rec% × Retainer
-                </td>
-              </tr>
-              <tr class="hi">
-                <td class="label-col" colspan="4">
-                  Bucket 1 = max(Revenue × Blended Multiple,&nbsp;&nbsp;Profit × Profit Multiple)
+                  Bucket 1 = max(Revenue × Revenue Multiple,&nbsp;&nbsp;Profit × Profit Multiple)
                 </td>
               </tr>
             </tbody>
           </table>
           <div class="fmla-note">
-            Example: 30% recurring → Blended (Base) = 0.70 × 1.25 + 0.30 × 2.50 = 1.625×<br>
-            At $100K revenue: Revenue val = $162.5K · Profit val (at $25K) = $75K → take $162.5K
+            Example: At $100K revenue (Base 1.25×): Revenue val = $125K · Profit val (at $25K, 3.0×) = $75K → take $125K
           </div>
         </div>
       </div>
@@ -1530,7 +1513,7 @@
        JSON EXPORT / IMPORT
     ───────────────────────────────────────────── */
     function exportJSON() {
-      const financialIds = ['f_arr', 'f_profit', 'rec_pct', 'f_ar', 'f_sow', 'f_pipe', 'f_forecast', 'cc_pct', 'ret_pct'];
+      const financialIds = ['f_arr', 'f_profit', 'f_ar', 'f_sow', 'f_pipe', 'f_forecast', 'cc_pct', 'ret_pct'];
       const financials   = {};
       financialIds.forEach(id => {
         financials[id] = parseFloat(document.getElementById(id).value) || 0;
@@ -1710,7 +1693,6 @@
       const fx       = v('fxRate');
       const arr      = v('f_arr');
       const profit   = v('f_profit');
-      const recPct   = v('rec_pct') / 100;
       const ar       = v('f_ar');
       const sow      = v('f_sow');
       const pipe     = v('f_pipe');
@@ -1719,12 +1701,8 @@
       const retPct   = v('ret_pct') / 100;        // fraction of revenue that is retainer
       const retRisk  = retPct * 0.40;             // ~40% of retainer value won't transfer
 
-      // Revenue multiples blended by recurring %
-      const rM = [
-        (1 - recPct) * 0.8  + recPct * 1.5,
-        (1 - recPct) * 1.25 + recPct * 2.5,
-        (1 - recPct) * 1.75 + recPct * 4.0
-      ];
+      // Revenue multiples (project-based)
+      const rM = [0.8, 1.25, 1.75];
       const sM = [2.5, 3.0, 4.0];
 
       // AR & Pipeline
@@ -1845,8 +1823,7 @@
         </div>`).join('');
 
       document.getElementById('foot').innerHTML =
-        `Revenue multiples: ${rM.map(m => m.toFixed(2) + '×').join(' / ')} ` +
-        `(${(recPct * 100).toFixed(0)}% recurring blended) &nbsp;|&nbsp; ` +
+        `Revenue multiples: ${rM.map(m => m.toFixed(2) + '×').join(' / ')} &nbsp;|&nbsp; ` +
         `Profit: 2.5×/3.0×/4.0× &nbsp;|&nbsp; ` +
         `HR Levels: L1=1.5× · L2=2.0× · L3=2.5× of total comp &nbsp;|&nbsp; ` +
         `CC Discount: −${(ccD * 100).toFixed(0)}% · ` +
@@ -1941,7 +1918,6 @@
 
       // Table 2: Profit after HC
       const scenarios = ['Conservative', 'Base Case', 'Strategic'];
-      const recPct    = v('rec_pct') / 100;
       let profRows = `
         <tr>
           <th>Scenario</th>
@@ -1953,9 +1929,9 @@
         </tr>`;
       scenarios.forEach((sc, i) => {
         const revEstimate = [
-          arr * ((1 - recPct) * 0.8  + recPct * 1.5),
+          arr * 0.8,
           arr,
-          arr * ((1 - recPct) * 1.75 + recPct * 4.0)
+          arr * 1.75
         ][i];
         const np     = revEstimate - totalComp;
         const margin = revEstimate > 0 ? (np / revEstimate * 100).toFixed(1) + '%' : '—';
