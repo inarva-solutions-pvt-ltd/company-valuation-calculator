@@ -1073,9 +1073,6 @@
     <div class="sec-title">
       <span class="pill p-hr">Bucket 4</span> Human Capital — Resources
     </div>
-    <p style="font-size: 11px; color: var(--muted); margin-bottom: 14px;">
-      Add each team member. Level 1 = 1.5× · Level 2 = 2.0× · Level 3 = 2.5× of Total Compensation.
-    </p>
 
     <table class="dyn-table" id="hr-table">
       <thead>
@@ -1303,8 +1300,8 @@
 
     </div><!-- /inf-grid row 1 -->
 
-    <!-- Row 2: Bucket 3 + Bucket 4 -->
-    <div class="inf-grid">
+    <!-- Row 2: Bucket 3 -->
+    <div class="inf-grid full">
 
       <!-- Bucket 3 -->
       <div class="fcard">
@@ -1349,51 +1346,6 @@
         </div>
       </div>
 
-      <!-- Bucket 4 -->
-      <div class="fcard">
-        <div class="fcard-hdr">
-          <span class="pill p-hr">Bucket 4</span>
-          <span class="fcard-hdr-text">Human Capital</span>
-        </div>
-        <div class="fcard-body">
-          <div class="fcard-desc">
-            Acqui-hire value — what a buyer would pay to recruit and ramp equivalent talent from scratch. The multiplier reflects market scarcity and ramp cost by seniority level.
-          </div>
-          <table class="fmla-table">
-            <thead>
-              <tr>
-                <th>Level</th>
-                <th>Profile</th>
-                <th class="r">Multiplier (all scenarios)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td class="label-col">L1</td>
-                <td>Specialist / Analyst</td>
-                <td class="r bas">Comp × 1.5×</td>
-              </tr>
-              <tr>
-                <td class="label-col">L2</td>
-                <td>Senior / Lead</td>
-                <td class="r bas">Comp × 2.0×</td>
-              </tr>
-              <tr>
-                <td class="label-col">L3</td>
-                <td>Principal / Architect</td>
-                <td class="r bas">Comp × 2.5×</td>
-              </tr>
-              <tr class="hi">
-                <td class="label-col" colspan="3">Bucket 4 = Σ (Fixed + Variable) × Level Multiplier</td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="fmla-note">
-            HC multiplier is the same across all three scenarios — talent value doesn't change with the deal structure. Only the financial buckets vary.
-          </div>
-        </div>
-      </div>
-
     </div><!-- /inf-grid row 2 -->
 
     <!-- Row 3: Risk Adjustment full width -->
@@ -1407,7 +1359,7 @@
         </div>
         <div class="fcard-body">
           <div class="fcard-desc">
-            Two risk factors reduce the pre-total. Both are applied as a single combined percentage discount to the sum of all four buckets.
+            Two risk factors reduce the pre-total. Both are applied as a single combined percentage discount to the sum of Buckets 1–3.
           </div>
 
           <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .7px; color: var(--muted); margin-bottom: 6px;">
@@ -1446,7 +1398,7 @@
             <strong>Discount = Retainer% × 0.40</strong><br>
             Example: 30% retainer → 30% × 0.40 = 12% additional discount<br><br>
             <strong>Total Discount = CC Discount + Retainer Discount</strong><br>
-            Applied to: Pre-Discount Total (Buckets 1–5 sum)
+            Applied to: Pre-Discount Total (Buckets 1–3 sum)
           </div>
         </div>
       </div>
@@ -1467,10 +1419,8 @@
           <span style="color: var(--muted);">Step 3</span>
           <span>Bucket 3 = Pipeline (weighted) + Forecast (weighted)</span>
           <span style="color: var(--muted);">Step 4</span>
-          <span>Bucket 4 = Σ (Comp × Level Multiplier) per resource</span>
+          <span>Pre-Total = Bucket 1 + 2 + 3</span>
           <span style="color: var(--muted);">Step 5</span>
-          <span>Pre-Total = Bucket 1 + 2 + 3 + 4</span>
-          <span style="color: var(--muted);">Step 6</span>
           <span>Discount = Pre-Total × (CC Discount + Retainer Discount)</span>
           <span style="color: var(--muted); font-weight: 700;">Final</span>
           <span style="font-weight: 700; color: var(--ink);">Valuation = Pre-Total − Discount</span>
@@ -1736,9 +1686,9 @@
       else if (ccPct >= 30) ccD = 0.12;
       else if (ccPct >= 20) ccD = 0.05;
 
-      // Totals
+      // Totals — HC (Bucket 4) is reported only; not included in valuation total
       const finS    = [0, 1, 2].map(s => Math.max(arr * rM[s], profit * sM[s]) + arV[s] + pipeV[s]);
-      const preT    = [0, 1, 2].map(s => finS[s] + hrV[s]);
+      const preT    = [0, 1, 2].map(s => finS[s]);
       const discAmt = preT.map(t => -t * (ccD + retRisk));
       const tots    = preT.map((t, s) => t + discAmt[s]);
 
@@ -1825,7 +1775,7 @@
       document.getElementById('foot').innerHTML =
         `Revenue multiples: ${rM.map(m => m.toFixed(2) + '×').join(' / ')} &nbsp;|&nbsp; ` +
         `Profit: 2.5×/3.0×/4.0× &nbsp;|&nbsp; ` +
-        `HR Levels: L1=1.5× · L2=2.0× · L3=2.5× of total comp &nbsp;|&nbsp; ` +
+        `HC reported separately (not included in valuation total) &nbsp;|&nbsp; ` +
         `CC Discount: −${(ccD * 100).toFixed(0)}% · ` +
         `Retainer Non-Transfer (${(retPct * 100).toFixed(0)}% × 0.40): −${(retRisk * 100).toFixed(1)}% ` +
         `&nbsp;|&nbsp; FX: 1 USD = ₹${fx}`;
@@ -1893,17 +1843,15 @@
           <th class="r">Fixed Pay</th>
           <th class="r">Variable Pay</th>
           <th class="r">Total Comp</th>
-          <th class="r">Acqui-Hire Value</th>
         </tr>`;
       hrRows.forEach(r => {
         hcRows += `
           <tr>
             <td>${r.name}</td>
-            <td style="font-family:'IBM Plex Mono',monospace">L${r.level} ×${r.mult}</td>
+            <td style="font-family:'IBM Plex Mono',monospace">L${r.level}</td>
             <td class="r">${fp(r.fixed)}</td>
             <td class="r">${fp(r.variable)}</td>
             <td class="r">${fp(r.comp)}</td>
-            <td class="r" style="color:var(--base);font-weight:600">${fp(r.val)}</td>
           </tr>`;
       });
       hcRows += `
@@ -1912,7 +1860,6 @@
           <td class="r">${fp(totalFixed)}</td>
           <td class="r">${fp(totalVar)}</td>
           <td class="r">${fp(totalComp)}</td>
-          <td class="r">${fp(totalHRVal)}</td>
         </tr>`;
       document.getElementById('rpt-hc-table').innerHTML = hcRows;
 
@@ -1921,29 +1868,22 @@
       let profRows = `
         <tr>
           <th>Scenario</th>
-          <th class="r">Gross Revenue</th>
+          <th class="r">Valuation</th>
           <th class="r">HC Expense</th>
-          <th class="r">Net Profit</th>
-          <th class="r">Profit Margin</th>
-          <th class="r">HC % Revenue</th>
+          <th class="r">Net (Val − HC)</th>
+          <th class="r">HC % Valuation</th>
         </tr>`;
       scenarios.forEach((sc, i) => {
-        const revEstimate = [
-          arr * 0.8,
-          arr,
-          arr * 1.75
-        ][i];
-        const np     = revEstimate - totalComp;
-        const margin = revEstimate > 0 ? (np / revEstimate * 100).toFixed(1) + '%' : '—';
-        const hcPct  = revEstimate > 0 ? (totalComp / revEstimate * 100).toFixed(1) + '%' : '—';
+        const valuation = tots[i];
+        const np     = valuation - totalComp;
+        const hcPct  = valuation > 0 ? (totalComp / valuation * 100).toFixed(1) + '%' : '—';
         const isNeg  = np < 0;
         profRows += `
           <tr${isNeg ? ' class="neg"' : ''}>
             <td>${sc}</td>
-            <td class="r">${fp(revEstimate)}</td>
+            <td class="r">${fp(valuation)}</td>
             <td class="r" style="color:var(--amber)">${fp(totalComp)}</td>
             <td class="r" style="color:${isNeg ? 'var(--red)' : 'var(--con)'};font-weight:600">${fp(np)}</td>
-            <td class="r">${margin}</td>
             <td class="r">${hcPct}</td>
           </tr>`;
       });
