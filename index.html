@@ -1659,7 +1659,7 @@
       const arV   = [ar * .90 + sow * .85,  ar * .95 + sow * .90,  ar * 1.0 + sow * .95];
       const pipeV = [pipe * .20 + forecast * .10, pipe * .30 + forecast * .15, pipe * .45 + forecast * .25];
 
-      // HR — read rows
+      // HR — read rows (actuals, no multiple)
       let hrRaw = [0, 0, 0];
       let hrRows = [];
       document.querySelectorAll('#hr-tbody tr').forEach(tr => {
@@ -1670,11 +1670,10 @@
         const vv     = parseFloat(ins[1]?.value) || 0;
         const c      = f + vv;
         const lvl    = parseInt(sel?.value) || 1;
-        const mult   = { 1: 1.5, 2: 2.0, 3: 2.5 }[lvl] || 1.5;
-        hrRaw = hrRaw.map(h => h + c * mult);
+        hrRaw = hrRaw.map(h => h + c);
         hrRows.push({
           name: nameIn?.value || 'Resource',
-          level: lvl, mult, fixed: f, variable: vv, comp: c, val: c * mult
+          level: lvl, fixed: f, variable: vv, comp: c, val: c
         });
       });
       const hrV = hrRaw;
@@ -1686,9 +1685,9 @@
       else if (ccPct >= 30) ccD = 0.12;
       else if (ccPct >= 20) ccD = 0.05;
 
-      // Totals — HC (Bucket 4) is reported only; not included in valuation total
+      // Totals — HC (Bucket 4) added as actuals (no multiple)
       const finS    = [0, 1, 2].map(s => Math.max(arr * rM[s], profit * sM[s]) + arV[s] + pipeV[s]);
-      const preT    = [0, 1, 2].map(s => finS[s]);
+      const preT    = [0, 1, 2].map(s => finS[s] + hrV[s]);
       const discAmt = preT.map(t => -t * (ccD + retRisk));
       const tots    = preT.map((t, s) => t + discAmt[s]);
 
@@ -1729,8 +1728,8 @@
         rows += `<tr><td colspan="5" style="text-align:center;color:var(--muted);font-size:11px;padding:12px">No resources added</td></tr>`;
       } else {
         hrRows.forEach(r => {
-          const lvlTag = `<span style="font-size:9px;background:#e8edf8;color:#1a4d8f;padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px;">L${r.level} ×${r.mult}</span>`;
-          rows += dr(`${r.name}${lvlTag}`, `${fc(r.comp)} comp × ${r.mult}×`, [r.val, r.val, r.val]);
+          const lvlTag = `<span style="font-size:9px;background:#e8edf8;color:#1a4d8f;padding:1px 6px;border-radius:8px;font-weight:700;margin-left:4px;">L${r.level}</span>`;
+          rows += dr(`${r.name}${lvlTag}`, 'Total Comp (actual)', [r.val, r.val, r.val]);
         });
       }
       rows += subRow('Bucket 4 Sub-total', hrV);
@@ -1775,7 +1774,7 @@
       document.getElementById('foot').innerHTML =
         `Revenue multiples: ${rM.map(m => m.toFixed(2) + '×').join(' / ')} &nbsp;|&nbsp; ` +
         `Profit: 2.5×/3.0×/4.0× &nbsp;|&nbsp; ` +
-        `HC reported separately (not included in valuation total) &nbsp;|&nbsp; ` +
+        `HC (Bucket 4): actual compensation, no multiple &nbsp;|&nbsp; ` +
         `CC Discount: −${(ccD * 100).toFixed(0)}% · ` +
         `Retainer Non-Transfer (${(retPct * 100).toFixed(0)}% × 0.40): −${(retRisk * 100).toFixed(1)}% ` +
         `&nbsp;|&nbsp; FX: 1 USD = ₹${fx}`;
